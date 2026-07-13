@@ -15,7 +15,7 @@ body{margin:0;background:var(--sand);color:var(--ink);font-family:'Cairo',system
 body:before{content:"";position:fixed;inset:0;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'><g fill='none' stroke='%230c5866' stroke-width='.6' opacity='.045'><path d='M40 5 L55 20 L55 40 L40 55 L25 40 L25 20 Z'/><path d='M40 25 L50 32 L50 48 L40 55 L30 48 L30 32 Z'/><circle cx='40' cy='40' r='3'/></g></svg>");pointer-events:none;z-index:0}
 button,input,select,textarea{font:inherit;color:inherit}button{border:0;background:none;cursor:pointer}button:disabled{opacity:.7;cursor:wait}a{color:inherit;text-decoration:none}.app{max-width:1120px;margin:0 auto;padding:0 14px 34px;position:relative;z-index:1}.topbar{position:sticky;top:0;z-index:20;background:rgba(253,246,232,.94);backdrop-filter:blur(16px);border-bottom:1px solid var(--line);margin:0 -14px 14px;padding:9px 14px}.topbar-inner{max-width:1120px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:10px}.brand{display:flex;align-items:center;gap:9px}.mark{width:42px;height:42px;border-radius:14px;background:linear-gradient(135deg,var(--sea),var(--sea2));color:var(--gold);display:grid;place-items:center;font-family:'Fraunces',serif;font-weight:800;font-size:22px;box-shadow:0 8px 18px rgba(13,59,59,.22)}.brand h1 span{color:var(--terra)}.brand h1{font-family:'Nunito','Cairo',sans-serif;font-size:23px;font-weight:900;line-height:1;margin:0}.brand p{font-size:12px;font-weight:900;color:var(--terra);margin:2px 0 0}.mark.logo-mark{background:none;padding:0;overflow:hidden}.mark.logo-mark img{width:100%;height:100%;object-fit:cover;display:block;border-radius:inherit}.top-actions{display:flex;gap:7px;align-items:center;flex-wrap:wrap}.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border-radius:999px;padding:8px 14px;font-size:13px;font-weight:900;border:1px solid var(--line);background:var(--cream);transition:.15s;min-height:38px}.btn:hover{transform:translateY(-1px);border-color:var(--sea)}.btn.primary{background:linear-gradient(135deg,var(--sea),var(--sea2));color:#fff;border-color:transparent;box-shadow:0 8px 18px rgba(13,59,59,.24)}.btn.danger{background:#fff3ed;color:var(--danger);border-color:#f4b59c}.btn.ok{background:#eaf8ef;color:var(--ok);border-color:#b7e5c7}.btn.soft{background:#fff8ec;color:var(--sea2)}.login-wrap{min-height:calc(100vh - 98px);display:grid;place-items:center}.login-card{width:100%;max-width:430px;background:var(--cream);border:1px solid var(--line);border-radius:24px;padding:22px;box-shadow:var(--shadow)}.login-card h2{font-size:28px;margin:0 0 8px;text-align:center}.login-card p{text-align:center;color:var(--muted);font-weight:800;margin:0 0 18px}.field{margin-bottom:12px}.label{display:block;font-size:13px;font-weight:900;color:#4a4250;margin-bottom:6px}.input{width:100%;border:1px solid var(--line);background:var(--sand);border-radius:14px;padding:11px 13px;font-weight:800;outline:none}.input:focus{border-color:var(--sea);box-shadow:0 0 0 3px rgba(13,59,59,.1)}.layout{display:grid;grid-template-columns:220px 1fr;gap:14px}.sidebar{background:var(--cream);border:1px solid var(--line);border-radius:20px;padding:9px;height:max-content;position:sticky;top:76px;box-shadow:0 4px 14px rgba(30,26,36,.04)}.tab{width:100%;display:flex;align-items:center;gap:8px;text-align:start;padding:10px 12px;border-radius:14px;font-weight:900;color:#514858;transition:.15s}.tab:hover{background:var(--sand)}.tab.active{background:linear-gradient(135deg,var(--sea),var(--sea2));color:#fff}.tab b{font-weight:900}.content{min-width:0}.hero{background:linear-gradient(135deg,var(--sea2),var(--sea));color:#fff;border-radius:22px;padding:16px;box-shadow:var(--shadow);margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;gap:10px}.hero h2{font-size:24px;margin:0 0 4px}.hero p{margin:0;color:rgba(255,255,255,.82);font-weight:800;line-height:1.55}.hero .btn{background:#fffaf0;color:var(--sea2);border-color:#f0dfbd;min-width:116px}.open-site-strip{display:flex;justify-content:flex-start;margin:0 0 10px}.site-open-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:42px;padding:9px 18px;border-radius:999px;background:linear-gradient(135deg,#fffaf0,#fff3dc);border:1px solid var(--line);color:var(--sea2);font-weight:900;box-shadow:0 8px 20px rgba(30,26,36,.08);transition:.15s}.site-open-btn span{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,var(--sea),var(--sea2));color:#fff;font-weight:900;line-height:1}.site-open-btn:hover{transform:translateY(-1px);border-color:var(--sea);box-shadow:0 12px 24px rgba(13,59,59,.14)}.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:12px}.stat{background:rgba(255,251,241,.96);border:1px solid var(--line);border-radius:16px;padding:10px 12px;box-shadow:0 4px 12px rgba(30,26,36,.035);min-height:74px;display:flex;flex-direction:column;justify-content:center}.stat.pending-stat{cursor:pointer;background:linear-gradient(180deg,#fff8e6,#fdedbf);border-color:#f4d28b;transition:.15s}.stat.pending-stat:hover{transform:translateY(-1px);box-shadow:0 8px 18px rgba(155,101,0,.16);border-color:#e6a417}.stat.pending-stat b{color:#9b6500}.stat span{display:block;font-size:12px;color:var(--muted);font-weight:900;line-height:1.2}.stat b{display:block;font-size:26px;line-height:1.1;color:var(--sea2);font-weight:900}.panel{background:var(--cream);border:1px solid var(--line);border-radius:20px;box-shadow:0 4px 14px rgba(30,26,36,.04);overflow:hidden}.panel-head{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px;border-bottom:1px solid var(--line);flex-wrap:wrap}.panel-head h3{margin:0;font-size:20px}.search{min-width:210px;max-width:360px;flex:1}.list{display:grid;gap:8px;padding:10px}.row{border:1px solid #efe3cb;background:linear-gradient(180deg,#fffdf7,#fff8ec);border-radius:16px;padding:11px;display:grid;gap:8px}.row-main{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.title{font-size:16px;font-weight:900;margin:0 0 4px;line-height:1.35}.meta{display:flex;gap:5px;flex-wrap:wrap}.chip{display:inline-flex;align-items:center;gap:4px;border-radius:999px;background:#F4EFE6;border:1px solid #ead9b8;padding:4px 8px;font-size:10.5px;font-weight:900;color:#665025}.chip.green{background:#eaf8ef;color:var(--ok);border-color:#b7e5c7}.chip.red{background:#fff3ed;color:var(--danger);border-color:#f4b59c}.chip.blue{background:var(--soft);color:var(--sea2);border-color:#bddede}.desc{margin:0;color:#5f5665;font-size:12.5px;font-weight:700;line-height:1.6;white-space:pre-wrap}.actions{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-start}.small{padding:6px 10px;font-size:11.5px;min-height:34px}.empty{padding:38px 18px;text-align:center;color:var(--muted);font-weight:900}.toast{position:fixed;left:50%;top:76px;transform:translateX(-50%) translateY(-14px);opacity:0;background:linear-gradient(135deg,var(--sea2),var(--wine));color:#fff;padding:12px 18px;border-radius:999px;box-shadow:0 18px 36px rgba(0,0,0,.22);font-weight:900;z-index:60;pointer-events:none;transition:.18s;max-width:calc(100vw - 22px);text-align:center}.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}.toast.error{background:linear-gradient(135deg,var(--terra),var(--danger))}.loader{padding:36px;text-align:center;font-weight:900;color:var(--muted)}.spinner{display:inline-block;width:18px;height:18px;border:3px solid rgba(13,59,59,.18);border-top-color:var(--sea);border-radius:50%;animation:spin .7s linear infinite;margin-inline-end:8px;vertical-align:middle}@keyframes spin{to{transform:rotate(360deg)}}.hide{display:none!important}.mobile-tabs{display:none}
 .admin-actions-bar{gap:8px;flex-wrap:wrap;align-items:center}.admin-actions-bar .site-open-btn{min-width:150px}.refresh-btn span{background:linear-gradient(135deg,var(--terra),var(--wine))}.panel-head-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;flex:1;justify-content:flex-end}.filter-chip{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:8px 14px;font-size:12.5px;font-weight:900;border:1px solid #f4d28b;background:#fff8e6;color:#9b6500;transition:.15s;min-height:38px}.filter-chip:hover{transform:translateY(-1px);border-color:#e6a417}.filter-chip.is-active{background:linear-gradient(135deg,#9b6500,#e6a417);color:#fff;border-color:transparent;box-shadow:0 8px 18px rgba(155,101,0,.28)}.tools-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:10px}.tool-card{border:1px solid #efe3cb;background:linear-gradient(180deg,#fffdf7,#fff8ec);border-radius:18px;padding:12px}.tool-card h4{margin:0 0 8px;font-size:16px}.tool-card p{margin:0 0 10px;color:var(--muted);font-weight:800;font-size:12px;line-height:1.6}.tool-actions{display:flex;gap:6px;flex-wrap:wrap}.tool-actions .btn{flex:1}.blocked-list-title{font-size:15px;font-weight:900;margin:8px 2px 0;color:#4a4250}.admin-person{display:flex;align-items:center;gap:9px}.admin-avatar{width:42px;height:42px;border-radius:14px;background:linear-gradient(135deg,var(--sea),var(--wine));color:#fff;display:grid;place-items:center;font-weight:900;overflow:hidden;flex-shrink:0}.admin-avatar img{width:100%;height:100%;object-fit:cover;display:block}.photo-chip{background:#eef7ff;color:#0D3B3B;border-color:#b9dce7}.verify-link{display:inline-flex;align-items:center;gap:5px;border-radius:999px;background:#fff8e6;color:#9b6500;border:1px solid #f4d28b;padding:5px 9px;font-size:11px;font-weight:900}.verify-link:hover{border-color:var(--terra)}.chip.pending{background:#fff8e6;color:#9b6500;border-color:#f4d28b}.chip.verified{background:#eaf8ef;color:var(--ok);border-color:#b7e5c7}.chip.rejected{background:#fff3ed;color:var(--danger);border-color:#f4b59c}.row-pending{border-color:#f4d28b;background:linear-gradient(180deg,#fffdf7,#fff4d6)!important;box-shadow:0 6px 16px rgba(155,101,0,.08)}
-@media(max-width:820px){.tools-grid{grid-template-columns:1fr}.tool-card{padding:10px}.tool-actions .btn{min-width:44%}}@media(max-width:820px){.admin-actions-bar{display:grid;grid-template-columns:1fr 1fr}.admin-actions-bar .site-open-btn{width:100%;min-width:0;max-width:none;font-size:12px}}@media(max-width:820px){.app{padding:0 10px 82px}.topbar{margin:0 -10px 10px;padding:8px 10px}.mark{width:40px;height:40px}.brand h1{font-size:20px}.brand p{font-size:10px}.layout{grid-template-columns:1fr}.sidebar{display:none}.mobile-tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;position:fixed;left:10px;right:10px;bottom:8px;z-index:30;background:rgba(255,251,241,.96);border:1px solid var(--line);border-radius:20px;padding:5px;box-shadow:0 14px 36px rgba(30,26,36,.18);backdrop-filter:blur(16px)}.mobile-tabs .tab{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;padding:7px 3px;font-size:9.5px;border-radius:15px;text-align:center;min-height:52px}.mobile-tabs .tab span{font-size:16px;line-height:1}.hero{border-radius:20px;padding:14px;margin-bottom:10px;align-items:flex-start;flex-direction:column}.hero h2{font-size:22px}.hero p{font-size:14px}.hero .btn{min-height:36px;padding:7px 14px}.open-site-strip{justify-content:center;margin:0 0 8px}.site-open-btn{width:100%;max-width:220px;min-height:40px;padding:8px 16px}.stats{grid-template-columns:repeat(2,1fr);gap:7px}.stat{border-radius:15px;padding:8px 10px;min-height:62px}.stat span{font-size:11px}.stat b{font-size:24px}.panel-head{padding:10px;align-items:stretch}.panel-head-actions{flex-direction:column;width:100%;gap:6px}.filter-chip{width:100%;justify-content:center;order:2}.panel-head h3{font-size:21px}.search{min-width:0;width:100%;max-width:none;padding:10px 12px}.list{gap:7px;padding:8px}.row{padding:10px;border-radius:15px}.row-main{flex-direction:column;gap:8px}.actions{width:100%}.actions .btn{flex:1}.top-actions .btn:not(.danger){display:none}.login-card{padding:18px;border-radius:22px}.toast{top:68px}.empty{padding:34px 14px}}
+@media(max-width:820px){.tools-grid{grid-template-columns:1fr}.tool-card{padding:10px}.tool-actions .btn{min-width:44%}}@media(max-width:820px){.admin-actions-bar{display:grid;grid-template-columns:1fr 1fr}.admin-actions-bar .site-open-btn{width:100%;min-width:0;max-width:none;font-size:12px}}@media(max-width:820px){.app{padding:0 10px 82px}.topbar{margin:0 -10px 10px;padding:8px 10px}.mark{width:40px;height:40px}.brand h1{font-size:20px}.brand p{font-size:10px}.layout{grid-template-columns:1fr}.sidebar{display:none}.mobile-tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;position:fixed;left:10px;right:10px;bottom:8px;z-index:30;background:rgba(255,251,241,.96);border:1px solid var(--line);border-radius:20px;padding:5px;box-shadow:0 14px 36px rgba(30,26,36,.18);backdrop-filter:blur(16px)}.mobile-tabs .tab{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;padding:7px 3px;font-size:9.5px;border-radius:15px;text-align:center;min-height:52px}.mobile-tabs .tab span{font-size:16px;line-height:1}.hero{border-radius:20px;padding:14px;margin-bottom:10px;align-items:flex-start;flex-direction:column}.hero h2{font-size:22px}.hero p{font-size:14px}.hero .btn{min-height:36px;padding:7px 14px}.open-site-strip{justify-content:center;margin:0 0 8px}.site-open-btn{width:100%;max-width:220px;min-height:40px;padding:8px 16px}.stats{grid-template-columns:repeat(2,1fr);gap:7px}.stat{border-radius:15px;padding:8px 10px;min-height:62px}.stat span{font-size:11px}.stat b{font-size:24px}.panel-head{padding:10px;align-items:stretch}.panel-head-actions{flex-direction:column;width:100%;gap:6px}.filter-chip{width:100%;justify-content:center;order:2}.panel-head h3{font-size:21px}.search{min-width:0;width:100%;max-width:none;padding:10px 12px}.list{gap:7px;padding:8px}.row{padding:10px;border-radius:15px}.row-main{flex-direction:column;gap:8px}.actions{width:100%}.actions .btn{flex:1}.top-actions .btn:not(.danger){display:none}.login-card{padding:18px;border-radius:22px}.toast{top:68px}.empty{padding:34px 14px}}
 </style>
 
 <link rel="manifest" href="./manifest.json?v=61">
@@ -83,7 +83,7 @@ button,input,select,textarea{font:inherit;color:inherit}button{border:0;backgrou
 const SUPABASE_URL='https://wcdbtxvyjtsqdhigzdgi.supabase.co';
 const SUPABASE_ANON_KEY='sb_publishable_qspjh8HScIC9jjjyvnoGVA_06tT1jFl';
 const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
-const tabs=[['jobs','💼','الوظائف'],['pharmacies','🏥','الصيدليات'],['pharmacists','💊','الصيادلة'],['sales','🏪','صيدليات للبيع'],['moderation','🛡️','الحظر والباسورد'],['otps','🔑','أكواد التحقق'],['resets','🔄','طلبات استعادة'],['notifications','🔔','الإشعارات']];
+const tabs=[['jobs','💼','الوظائف'],['pharmacies','🏥','الصيدليات'],['pharmacists','💊','الصيادلة'],['sales','🏪','صيدليات للبيع'],['moderation','🛡️','الحظر والباسورد'],['otps','🔑','أكواد التحقق'],['resets','🔄','طلبات استعادة'],['notifications','🔔','الإشعارات'],['contacts','📞','أرقام التواصل']];
 const govs={cairo:'القاهرة',giza:'الجيزة',alex:'الإسكندرية',qalyubia:'القليوبية',sharqia:'الشرقية',dakahlia:'الدقهلية',beheira:'البحيرة',kafr:'كفر الشيخ',gharbia:'الغربية',menoufia:'المنوفية',damietta:'دمياط',portsaid:'بورسعيد',ismailia:'الإسماعيلية',suez:'السويس',nsinai:'شمال سيناء',ssinai:'جنوب سيناء',redsea:'البحر الأحمر',matrouh:'مطروح',faiyum:'الفيوم',benisuef:'بني سويف',minya:'المنيا',assiut:'أسيوط',sohag:'سوهاج',qena:'قنا',luxor:'الأقصر',aswan:'أسوان',newvalley:'الوادي الجديد'};
 const state={user:null,manager:null,tab:'jobs',rows:[],loading:false,filterPending:false};
 const $=id=>document.getElementById(id);
@@ -97,7 +97,23 @@ function toast(msg,type='ok'){const t=$('toast');t.textContent=msg;t.className='
 function showError(el,msg){$(el).innerHTML='<div class="chip red" style="width:100%;justify-content:center;margin-bottom:12px;padding:10px 12px">'+esc(msg)+'</div>';toast(msg,'error')}
 function isMissingTable(err){return /Could not find the table|relation .* does not exist|schema cache/i.test(String(err?.message||err||''))}
 function friendly(err){const m=String(err?.message||err||'');if(isMissingTable(m))return'لا توجد بيانات';if(/invalid login/i.test(m))return'Admin أو كلمة السر غير صحيحة';if(/email not confirmed/i.test(m))return'Confirm email لسه مفتوح في Supabase';if(/column .*is_active|Could not find.*is_active|schema cache/i.test(m)&&/pharmacies|is_active/i.test(m))return'شغّل ملف SQL الجديد في Supabase مرة واحدة';if(/permission|policy|row-level|rls|not authorized|violates|permission denied|new row violates/i.test(m))return'محتاج تشغيل صلاحيات المدير في Supabase';return 'حصل خطأ، جرّب تحديث الصفحة'}
-function normalizeWa(num){let n=String(num||'').replace(/\D/g,'');if(!n)return'';if(n.startsWith('00'))n=n.slice(2);if(n.startsWith('0'))n='20'+n.slice(1);else if(n.startsWith('1')&&(n.length===10||n.length===11))n='20'+n;return n}function waLink(num,msg='السلام عليكم، بتواصل معاك من لوحة CareerK.'){const n=normalizeWa(num);return n?'https://wa.me/'+n+'?text='+encodeURIComponent(msg):'#'}
+function normalizeWa(num){let n=String(num||'').replace(/\D/g,'');if(!n)return'';if(n.startsWith('00'))n=n.slice(2);if(n.startsWith('0'))n='20'+n.slice(1);else if(n.startsWith('1')&&(n.length===10||n.length===11))n='20'+n;return n}
+// Build a branded WhatsApp message. Always identifies the sender as "CareerK"
+// and personalizes with the recipient's first name when available.
+// The admin should be logged into WhatsApp on the official 01205409238 line so
+// the message actually goes out from that number.
+function careerkMsg(name, purpose){
+  const first = String(name||'').trim().split(/\s+/)[0] || '';
+  const greet = first ? `أهلاً يا ${first} 👋` : 'أهلاً 👋';
+  const sig = '— فريق CareerK · مجتمع الصيادلة والصيدليات في مصر';
+  const body = purpose || 'معاك فريق CareerK، حابين نتواصل معاك بخصوص حسابك.';
+  return `${greet}\n${body}\n\n${sig}`;
+}
+function waLink(num, msg, name){
+  const finalMsg = msg || careerkMsg(name);
+  const n=normalizeWa(num);
+  return n?'https://wa.me/'+n+'?text='+encodeURIComponent(finalMsg):'#'
+}
 function renderTabs(){const html=tabs.map(t=>'<button class="tab '+(state.tab===t[0]?'active':'')+'" onclick="setTab(\''+t[0]+'\')"><span>'+t[1]+'</span><b>'+t[2]+'</b></button>').join('');$('sideTabs').innerHTML=html;$('mobileTabs').innerHTML=html}
 function renderTop(){const a=$('topActions');if(state.manager){a.innerHTML='<span class="btn soft">'+esc(state.manager.full_name||'Admin')+'</span><button class="btn danger" onclick="logout()">خروج</button>'}else{a.innerHTML='<a class="btn" href="https://careerk.net/" target="_blank">الموقع</a>'}}
 async function init(){renderTabs();renderTop();const r=await sb.auth.getSession();if(r.data.session){state.user=r.data.session.user;await loadManager();if(state.manager)showDash();else showLogin()}else{showLogin()}}
@@ -112,9 +128,9 @@ async function safeCount(table,filter){try{let q=sb.from(table).select('id',{cou
 async function loadStats(){const [j,p,s,l,pv]=await Promise.all([safeCount('jobs'),safeCount('pharmacies'),safeCount('pharmacists'),safeCount('pharmacy_sales'),safeCount('pharmacists',q=>q.eq('verification_status','pending').eq('is_verified',false))]);$('sJobs').textContent=j;$('sPharmacies').textContent=p;$('sPharmacists').textContent=s;$('sSales').textContent=l;$('sPending').textContent=pv}
 function jumpToPendingVerifications(){setTab('pharmacists');state.filterPending=true;renderRows()}
 function togglePendingFilter(){state.filterPending=!state.filterPending;renderRows()}
-async function loadRows(){state.loading=true;$('rows').innerHTML='<div class="loader"><span class="spinner"></span>جاري التحميل...</div>';try{let r;if(state.tab==='jobs')r=await sb.from('jobs').select('*,pharmacies(name,whatsapp)').order('created_at',{ascending:false}).limit(400);if(state.tab==='pharmacies')r=await sb.from('pharmacies').select('*').order('created_at',{ascending:false}).limit(400);if(state.tab==='pharmacists')r=await sb.from('pharmacists').select('*').order('created_at',{ascending:false}).limit(400);if(state.tab==='sales')r=await sb.from('pharmacy_sales').select('*,pharmacies(name,whatsapp)').order('created_at',{ascending:false}).limit(400);if(state.tab==='moderation')r=await sb.from('blocked_phones').select('*').order('created_at',{ascending:false}).limit(300);if(state.tab==='otps')r=await sb.from('otp_codes').select('*').order('created_at',{ascending:false}).limit(100);if(state.tab==='resets')r=await sb.from('password_reset_requests').select('*').order('created_at',{ascending:false}).limit(200);if(state.tab==='notifications')r=await sb.from('notifications').select('*').order('created_at',{ascending:false}).limit(200);if(r?.error){if(isMissingTable(r.error)){state.rows=[];renderRows();return}throw r.error}state.rows=r?.data||[];renderRows()}catch(err){$('rows').innerHTML='<div class="empty">'+esc(friendly(err))+'</div>'}finally{state.loading=false}}
+async function loadRows(){state.loading=true;$('rows').innerHTML='<div class="loader"><span class="spinner"></span>جاري التحميل...</div>';try{let r;if(state.tab==='jobs')r=await sb.from('jobs').select('*,pharmacies(name,whatsapp)').order('created_at',{ascending:false}).limit(400);if(state.tab==='pharmacies')r=await sb.from('pharmacies').select('*').order('created_at',{ascending:false}).limit(400);if(state.tab==='pharmacists')r=await sb.from('pharmacists').select('*').order('created_at',{ascending:false}).limit(400);if(state.tab==='sales')r=await sb.from('pharmacy_sales').select('*,pharmacies(name,whatsapp)').order('created_at',{ascending:false}).limit(400);if(state.tab==='moderation')r=await sb.from('blocked_phones').select('*').order('created_at',{ascending:false}).limit(300);if(state.tab==='otps')r=await sb.from('otp_codes').select('*').order('created_at',{ascending:false}).limit(100);if(state.tab==='resets')r=await sb.from('password_reset_requests').select('*').order('created_at',{ascending:false}).limit(200);if(state.tab==='notifications')r=await sb.from('notifications').select('*').order('created_at',{ascending:false}).limit(200);if(state.tab==='contacts')r=await sb.from('contact_numbers').select('*').order('display_order',{ascending:true}).order('created_at',{ascending:true}).limit(50);if(r?.error){if(isMissingTable(r.error)){state.rows=[];renderRows();return}throw r.error}state.rows=r?.data||[];renderRows()}catch(err){$('rows').innerHTML='<div class="empty">'+esc(friendly(err))+'</div>'}finally{state.loading=false}}
 function filteredRows(){let rows=state.rows;if(state.tab==='pharmacists'&&state.filterPending){rows=rows.filter(x=>x.verification_status==='pending'&&x.is_verified!==true)}const q=$('search').value.trim().toLowerCase();if(!q)return rows;return rows.filter(x=>JSON.stringify(x).toLowerCase().includes(q))}
-function renderRows(){const rows=filteredRows();const filterBtn=$('pendingFilterBtn');if(filterBtn){filterBtn.classList.toggle('hide',state.tab!=='pharmacists');filterBtn.classList.toggle('is-active',state.filterPending===true)}if(state.tab==='moderation'){renderModeration(rows);return}if(state.tab==='otps'){renderOtps(rows);return}if(state.tab==='resets'){renderResets(rows);return}if(state.tab==='notifications'){renderNotifications(rows);return}if(!rows.length){$('rows').innerHTML='<div class="empty">'+(state.filterPending?'مفيش طلبات توثيق معلقة حاليًا 🎉':'لا توجد بيانات')+'</div>';return}let html='';if(state.tab==='jobs')html=rows.map(jobRow).join('');if(state.tab==='pharmacies')html=rows.map(pharmacyRow).join('');if(state.tab==='pharmacists')html=rows.map(pharmacistRow).join('');if(state.tab==='sales')html=rows.map(saleRow).join('');$('rows').innerHTML=html}
+function renderRows(){const rows=filteredRows();const filterBtn=$('pendingFilterBtn');if(filterBtn){filterBtn.classList.toggle('hide',state.tab!=='pharmacists');filterBtn.classList.toggle('is-active',state.filterPending===true)}if(state.tab==='moderation'){renderModeration(rows);return}if(state.tab==='otps'){renderOtps(rows);return}if(state.tab==='resets'){renderResets(rows);return}if(state.tab==='notifications'){renderNotifications(rows);return}if(state.tab==='contacts'){renderContacts(rows);return}if(!rows.length){$('rows').innerHTML='<div class="empty">'+(state.filterPending?'مفيش طلبات توثيق معلقة حاليًا 🎉':'لا توجد بيانات')+'</div>';return}let html='';if(state.tab==='jobs')html=rows.map(jobRow).join('');if(state.tab==='pharmacies')html=rows.map(pharmacyRow).join('');if(state.tab==='pharmacists')html=rows.map(pharmacistRow).join('');if(state.tab==='sales')html=rows.map(saleRow).join('');$('rows').innerHTML=html}
 function jobRow(x){return '<div class="row"><div class="row-main"><div><h4 class="title">'+esc(x.title)+'</h4><div class="meta"><span class="chip blue">'+esc(x.pharmacies?.name||'صيدلية')+'</span><span class="chip">'+g(x.governorate)+(x.city?' · '+esc(x.city):'')+'</span><span class="chip '+(x.is_active?'green':'red')+'">'+(x.is_active?'نشط':'متوقف')+'</span><span class="chip">👁 '+(x.view_count||0)+'</span><span class="chip">'+ago(x.created_at)+'</span></div></div><div class="actions"><button class="btn small '+(x.is_active?'danger':'ok')+'" onclick="toggleJob(event,\''+x.id+'\','+(!x.is_active)+')">'+(x.is_active?'إيقاف':'تشغيل')+'</button><button class="btn small" onclick="openItem(\'job\',\''+x.id+'\')">عرض</button><button class="btn small danger" onclick="deleteRow(event,\'jobs\',\''+x.id+'\')">حذف</button></div></div>'+(x.description?'<p class="desc">'+esc(x.description)+'</p>':'')+'</div>'}
 function pharmacyRow(x){
   const active=x.is_active!==false;
@@ -138,7 +154,7 @@ function pharmacyRow(x){
         <button class="btn small ${active?'danger':'ok'}" onclick="togglePharmacy(event,'${x.id}',${!active})">${active?'إخفاء':'إظهار'}</button>
         <button class="btn small ${x.is_verified?'danger':'ok'}" onclick="verifyPharmacy(event,'${x.id}',${!x.is_verified})">${x.is_verified?'إلغاء التوثيق':'توثيق'}</button>
         ${x.avatar_url?`<button class="btn small" onclick="clearPhoto(event,'pharmacies','${x.id}')">حذف الصورة</button>`:''}
-        <a class="btn small" target="_blank" href="${waLink(x.whatsapp)}">واتساب</a>
+        <a class="btn small" target="_blank" href="${waLink(x.whatsapp, null, x.name)}">💬 واتساب</a>
         <button class="btn small danger" onclick="deleteAccount(event,'${x.user_id||''}')">حذف نهائي</button><button class="btn small danger" onclick="deleteAccountAndBlock(event,'${x.user_id||''}')">حذف وحظر</button>
       </div>
     </div>
@@ -172,7 +188,7 @@ function pharmacistRow(x){
         <button class="btn small ${x.is_verified?'danger':'ok'}" onclick="verifyPharmacist(event,'${x.id}',${!x.is_verified},'${x.user_id||''}')">${x.is_verified?'إلغاء التوثيق':'✅ توثيق'}</button>
         ${x.verification_status==='pending'&&!x.is_verified?`<button class="btn small danger" onclick="rejectVerification(event,'${x.id}','${x.user_id||''}')">❌ رفض التوثيق</button>`:''}
         ${x.avatar_url?`<button class="btn small" onclick="clearPhoto(event,'pharmacists','${x.id}')">حذف الصورة</button>`:''}
-        <a class="btn small" target="_blank" href="${waLink(x.whatsapp)}">واتساب</a>
+        <a class="btn small" target="_blank" href="${waLink(x.whatsapp, null, x.full_name)}">💬 واتساب</a>
         ${x.cv_link?'<a class="btn small" target="_blank" href="'+esc(x.cv_link)+'">CV</a>':''}
         <button class="btn small danger" onclick="deleteAccount(event,'${x.user_id||''}')">حذف نهائي</button><button class="btn small danger" onclick="deleteAccountAndBlock(event,'${x.user_id||''}')">حذف وحظر</button>
       </div>
@@ -248,7 +264,7 @@ function otpRow(x){
       </div>
     </div>
     <div class="actions">
-      ${isActive ? `<a class="btn small ok" href="${waLink(x.whatsapp,'كود التحقق بتاعك في CareerK: [اكتب الكود من الأدمن هنا]. الكود صالح 10 دقايق.')}" target="_blank">📱 راسل واتساب</a>` : ''}
+      ${isActive ? `<a class="btn small ok" href="${waLink(x.whatsapp,'أهلاً 👋\nمعاك فريق CareerK.\nاستلمنا طلبك لاستعادة كلمة السر، وحقنبعتلك كود التحقق دلوقتي.\nلو مش أنت اللي طلبت، تجاهل الرسالة.\n\n— فريق CareerK · مجتمع الصيادلة والصيدليات في مصر')}" target="_blank">📱 راسل واتساب</a>` : ''}
       <button class="btn small danger" onclick="deleteRow(event,'otp_codes','${x.id}')">حذف</button>
     </div>
   </div></div>`;
@@ -284,6 +300,7 @@ function resetRow(x){
     </div>
     <div class="actions">
       ${x.verification_document_url?`<a class="btn small" href="${esc(x.verification_document_url)}" target="_blank">📄 الصورة</a>`:''}
+      <a class="btn small" target="_blank" href="${waLink(x.whatsapp, null, x.full_name_provided)}">💬 واتساب</a>
       ${x.status==='pending'?`<button class="btn small ok" onclick="approveReset(event,'${x.id}')">✅ قبول</button>
       <button class="btn small danger" onclick="rejectReset(event,'${x.id}')">❌ رفض</button>`:''}
     </div>
@@ -369,6 +386,106 @@ async function sendBroadcast(e){
     toast('تم إرسال '+users.length+' إشعار');
     $('broadcastTitle').value='';$('broadcastBody').value='';
     await loadRows();
+  }catch(err){toast(friendly(err),'error')}
+  finally{btn.disabled=false;btn.textContent=old}
+}
+
+// ============ CONTACT NUMBERS TAB ============
+// Admin can add / edit / disable WhatsApp support lines that appear in the
+// user site's "شكاوى ومقترحات" section. Requires the contact_numbers table
+// (see contact-numbers-setup.sql).
+function renderContacts(rows){
+  const active = rows.filter(x => x.is_active);
+  const list = rows.length ? rows.map(contactRow).join('') : '<div class="empty">لا توجد أرقام. أضف أول رقم من الفورم فوق.</div>';
+  $('rows').innerHTML = `<div class="tools-grid">
+    <div class="tool-card">
+      <h4>📞 إضافة رقم تواصل جديد</h4>
+      <div class="field"><label class="label">الرقم</label><input class="input" id="newContactPhone" placeholder="01xxxxxxxxx"></div>
+      <div class="field"><label class="label">العنوان</label><input class="input" id="newContactLabel" placeholder="مثال: شكاوى ومقترحات"></div>
+      <div class="field"><label class="label">نص الرسالة الجاهزة</label><input class="input" id="newContactMsg" placeholder="CareerK - عندي شكوى:"></div>
+      <div class="tool-actions"><button class="btn primary" onclick="addContactNumber(event)">➕ إضافة</button></div>
+    </div>
+    <div class="tool-card">
+      <h4>📊 الحالة</h4>
+      <p><b>${active.length}</b> نشط من أصل <b>${rows.length}</b></p>
+    </div>
+  </div>${list}`;
+}
+function contactRow(x){
+  const statusChip = x.is_active
+    ? '<span class="chip verified">✅ نشط</span>'
+    : '<span class="chip rejected">⏸️ معطّل</span>';
+  return `<div class="row ${x.is_active?'':'row-inactive'}"><div class="row-main">
+    <div class="admin-person">
+      <span class="admin-avatar">💬</span>
+      <div>
+        <h4 class="title">${esc(x.label||'بدون عنوان')}</h4>
+        <div class="meta">
+          ${statusChip}
+          <span class="chip">📱 ${esc(x.phone)}</span>
+          <span class="chip">ترتيب: ${x.display_order||0}</span>
+          <span class="chip">${ago(x.created_at)}</span>
+        </div>
+        ${x.message_template?`<p class="desc">📝 ${esc(x.message_template)}</p>`:''}
+      </div>
+    </div>
+    <div class="actions">
+      ${x.is_active
+        ? `<button class="btn small danger" onclick="toggleContactActive(event,'${x.id}',false)">⏸️ تعطيل</button>`
+        : `<button class="btn small ok" onclick="toggleContactActive(event,'${x.id}',true)">▶️ تفعيل</button>`}
+      <button class="btn small" onclick="editContactNumber(event,'${x.id}','${esc(x.phone)}','${esc(x.label||'')}','${esc((x.message_template||'').replace(/'/g,"\\'"))}',${x.display_order||0})">✏️ تعديل</button>
+      <button class="btn small danger" onclick="deleteRow(event,'contact_numbers','${x.id}')">🗑️ حذف</button>
+    </div>
+  </div></div>`;
+}
+async function addContactNumber(e){
+  const phone=($('newContactPhone')?.value||'').trim();
+  const label=($('newContactLabel')?.value||'').trim() || 'شكاوى ومقترحات';
+  const msg=($('newContactMsg')?.value||'').trim() || 'CareerK - عندي شكوى/مقترح:';
+  if(!phone){toast('اكتب رقم الواتساب','error');return}
+  if(!/^0?1[0125]\d{8}$/.test(phone.replace(/\s/g,''))){toast('الرقم مش صحيح (لازم يبدأ بـ 010/011/012/015 وطوله 11 رقم)','error');return}
+  const btn=e.currentTarget,old=btn.textContent;btn.disabled=true;btn.textContent='جارِ...';
+  try{
+    // Auto-assign display_order = max + 1 so new numbers appear last
+    const maxR = await sb.from('contact_numbers').select('display_order').order('display_order',{ascending:false}).limit(1);
+    const nextOrder = ((maxR?.data?.[0]?.display_order) ?? -1) + 1;
+    const r=await sb.from('contact_numbers').insert({phone, label, message_template:msg, display_order:nextOrder, is_active:true});
+    if(r.error)throw r.error;
+    toast('تم إضافة الرقم');
+    $('newContactPhone').value='';$('newContactLabel').value='';$('newContactMsg').value='';
+    await loadAll();
+  }catch(err){toast(friendly(err),'error')}
+  finally{btn.disabled=false;btn.textContent=old}
+}
+async function toggleContactActive(e,id,active){
+  const btn=e.currentTarget,old=btn.textContent;btn.disabled=true;btn.textContent='جارِ...';
+  try{
+    const r=await sb.from('contact_numbers').update({is_active:active,updated_at:new Date().toISOString()}).eq('id',id);
+    if(r.error)throw r.error;
+    toast(active?'تم التفعيل':'تم التعطيل');
+    await loadAll();
+  }catch(err){toast(friendly(err),'error')}
+  finally{btn.disabled=false;btn.textContent=old}
+}
+async function editContactNumber(e,id,phone,label,msg,order){
+  const newPhone = prompt('رقم الواتساب:', phone);
+  if (newPhone === null) return;
+  const newLabel = prompt('العنوان:', label) || label;
+  const newMsg = prompt('نص الرسالة الجاهزة:', msg) || msg;
+  const newOrder = parseInt(prompt('ترتيب العرض (٠ = الأول):', String(order))) || 0;
+  if (!/^0?1[0125]\d{8}$/.test(newPhone.replace(/\s/g,''))){toast('الرقم مش صحيح','error');return}
+  const btn=e.currentTarget,old=btn.textContent;btn.disabled=true;btn.textContent='جارِ...';
+  try{
+    const r=await sb.from('contact_numbers').update({
+      phone:newPhone.trim(),
+      label:newLabel.trim(),
+      message_template:newMsg.trim(),
+      display_order:newOrder,
+      updated_at:new Date().toISOString()
+    }).eq('id',id);
+    if(r.error)throw r.error;
+    toast('تم التحديث');
+    await loadAll();
   }catch(err){toast(friendly(err),'error')}
   finally{btn.disabled=false;btn.textContent=old}
 }
