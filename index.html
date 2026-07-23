@@ -89,6 +89,9 @@ a{color:inherit;text-decoration:none}
 .stat.pending-stat{cursor:pointer;background:linear-gradient(135deg,#fff8ec,#fdedbf);border-color:#f0c46a}
 .stat.pending-stat:hover{border-color:#e6a417;box-shadow:0 8px 18px rgba(155,101,0,.18)}
 .stat.pending-stat b{color:#9b6500}
+.stat.no-proof-stat{cursor:pointer;background:linear-gradient(135deg,#fdecea,#fbdad6);border-color:#e8a5a0}
+.stat.no-proof-stat:hover{border-color:#c94f45;box-shadow:0 8px 18px rgba(160,30,40,.18)}
+.stat.no-proof-stat b{color:#a01e28}
 
 /* LAYOUT */
 .layout{display:grid;grid-template-columns:210px 1fr;gap:14px}
@@ -442,9 +445,43 @@ details.detail-panel[open]>summary::after{transform:rotate(180deg);background:va
   .brand p{font-size:10px}
   .layout{grid-template-columns:1fr}
   .sidebar{display:none}
-  .mobile-tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;position:fixed;left:10px;right:10px;bottom:8px;z-index:30;background:linear-gradient(135deg,#fff,#fffbf3);border:1.5px solid var(--line);border-radius:16px;padding:5px;box-shadow:0 14px 32px rgba(30,26,36,.18);max-width:calc(100vw - 20px)}
-  .mobile-tabs .tab{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:6px 2px;font-size:9.5px;border-radius:12px;text-align:center;min-height:48px}
-  .mobile-tabs .tab span{font-size:15px;line-height:1}
+  .mobile-tabs{
+    display:flex;
+    gap:6px;
+    position:fixed;
+    left:8px;right:8px;
+    bottom:8px;
+    z-index:30;
+    background:linear-gradient(135deg,#fff,#fffbf3);
+    border:1.5px solid var(--line);
+    border-radius:16px;
+    padding:6px;
+    box-shadow:0 14px 32px rgba(30,26,36,.18);
+    overflow-x:auto;
+    overflow-y:hidden;
+    scroll-snap-type:x mandatory;
+    scroll-padding:6px;
+    -webkit-overflow-scrolling:touch;
+  }
+  .mobile-tabs::-webkit-scrollbar{display:none}
+  .mobile-tabs{scrollbar-width:none}
+  .mobile-tabs .tab{
+    flex:0 0 auto;
+    scroll-snap-align:start;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:2px;
+    padding:6px 10px;
+    font-size:10px;
+    border-radius:12px;
+    text-align:center;
+    min-width:64px;
+    min-height:48px;
+    white-space:nowrap;
+  }
+  .mobile-tabs .tab span{font-size:16px;line-height:1}
   .stats{grid-template-columns:repeat(2,1fr);gap:6px}
   .stat{padding:8px 10px;min-height:56px;border-radius:12px}
   .stat b{font-size:19px}
@@ -510,6 +547,7 @@ details.detail-panel[open]>summary::after{transform:rotate(180deg);background:va
     <div class="stat"><span>صيادلة</span><b id="sPharmacists">0</b></div>
     <div class="stat"><span>للبيع</span><b id="sSales">0</b></div>
     <div class="stat pending-stat" onclick="jumpToPendingVerifications()"><span>⏳ طلبات توثيق</span><b id="sPending">0</b></div>
+    <div class="stat no-proof-stat" onclick="jumpToNoProof()"><span>🚨 قديمة بدون إثبات</span><b id="sNoProof">0</b></div>
   </div>
   <div class="layout">
     <aside class="sidebar" id="sideTabs"></aside>
@@ -519,6 +557,7 @@ details.detail-panel[open]>summary::after{transform:rotate(180deg);background:va
           <h3 id="panelTitle">الوظائف</h3>
           <div class="panel-head-actions">
             <button type="button" class="filter-chip hide" id="pendingFilterBtn" onclick="togglePendingFilter()">⏳ طلبات التوثيق فقط</button>
+            <button type="button" class="filter-chip hide" id="noProofFilterBtn" onclick="toggleNoProofFilter()">🚨 حسابات قديمة بدون إثبات</button>
             <input class="input search" id="search" type="search" placeholder="بحث..." oninput="renderRows()">
           </div>
         </div>
@@ -564,7 +603,7 @@ const SUPABASE_ANON_KEY='sb_publishable_qspjh8HScIC9jjjyvnoGVA_06tT1jFl';
 const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
 const tabs=[['jobs','💼','الوظائف'],['pharmacies','🏥','الصيدليات'],['pharmacists','💊','الصيادلة'],['sales','🏪','صيدليات للبيع'],['helpers','🤝','المساعدين'],['moderation','🛡️','الحظر والباسورد'],['otps','🔑','أكواد التحقق'],['resets','🔄','طلبات استعادة'],['notifications','🔔','الإشعارات'],['contacts','📞','أرقام التواصل']];
 const govs={cairo:'القاهرة',giza:'الجيزة',alex:'الإسكندرية',qalyubia:'القليوبية',sharqia:'الشرقية',dakahlia:'الدقهلية',beheira:'البحيرة',kafr:'كفر الشيخ',gharbia:'الغربية',menoufia:'المنوفية',damietta:'دمياط',portsaid:'بورسعيد',ismailia:'الإسماعيلية',suez:'السويس',nsinai:'شمال سيناء',ssinai:'جنوب سيناء',redsea:'البحر الأحمر',matrouh:'مطروح',faiyum:'الفيوم',benisuef:'بني سويف',minya:'المنيا',assiut:'أسيوط',sohag:'سوهاج',qena:'قنا',luxor:'الأقصر',aswan:'أسوان',newvalley:'الوادي الجديد'};
-const state={user:null,manager:null,tab:'jobs',rows:[],loading:false,filterPending:false};
+const state={user:null,manager:null,tab:'jobs',rows:[],loading:false,filterPending:false,filterNoProof:false};
 const $=id=>document.getElementById(id);
 function waToEmail(wa){return String(wa||'').replace(/\D/g,'')+'@career.local'}
 function adminToEmail(value){const v=String(value||'').trim();if(!v||v.toLowerCase()==='admin')return 'admin@career.local';if(v.includes('@'))return v;return waToEmail(v)}
@@ -601,12 +640,14 @@ function showDash(){document.body.classList.add('authed');$('loginView').classLi
 async function login(e){e.preventDefault();$('loginError').innerHTML='';$('loginBtn').disabled=true;$('loginBtn').innerHTML='<span class="spinner"></span>';try{const email=adminToEmail($('adminLogin').value),password=$('pass').value;const r=await sb.auth.signInWithPassword({email,password});if(r.error)throw r.error;state.user=r.data.user;await loadManager();if(!state.manager){await sb.auth.signOut();throw new Error('الحساب ده مش مدير')}showDash();toast('تم الدخول')}catch(err){showError('loginError',friendly(err))}finally{$('loginBtn').disabled=false;$('loginBtn').textContent='دخول لوحة التحكم'}}
 async function loadManager(){if(!state.user)return;const r=await sb.from('managers').select('*').eq('user_id',state.user.id).eq('is_active',true).maybeSingle();if(r.error)throw r.error;state.manager=r.data}
 async function logout(){await sb.auth.signOut();state.user=null;state.manager=null;showLogin();toast('تم الخروج')}
-function setTab(t){state.tab=t;state.filterPending=false;$('search').value='';const found=tabs.find(x=>x[0]===t);$('panelTitle').textContent=found?found[2]:'';renderTabs();loadRows()}
+function setTab(t){state.tab=t;state.filterPending=false;state.filterNoProof=false;$('search').value='';const found=tabs.find(x=>x[0]===t);$('panelTitle').textContent=found?found[2]:'';renderTabs();loadRows()}
 async function loadAll(){await Promise.all([loadStats(),loadRows()])}
 async function safeCount(table,filter){try{let q=sb.from(table).select('id',{count:'exact',head:true});if(filter)q=filter(q);const r=await q;return r.error?0:(r.count??0)}catch(e){return 0}}
-async function loadStats(){const [j,p,s,l,pv]=await Promise.all([safeCount('jobs'),safeCount('pharmacies'),safeCount('pharmacists'),safeCount('pharmacy_sales'),safeCount('pharmacists',q=>q.eq('verification_status','pending').eq('is_verified',false))]);$('sJobs').textContent=j;$('sPharmacies').textContent=p;$('sPharmacists').textContent=s;$('sSales').textContent=l;$('sPending').textContent=pv}
-function jumpToPendingVerifications(){setTab('pharmacists');state.filterPending=true;renderRows()}
-function togglePendingFilter(){state.filterPending=!state.filterPending;renderRows()}
+async function loadStats(){const [j,p,s,l,pv,np]=await Promise.all([safeCount('jobs'),safeCount('pharmacies'),safeCount('pharmacists'),safeCount('pharmacy_sales'),safeCount('pharmacists',q=>q.eq('verification_status','pending').eq('is_verified',false)),safeCount('pharmacists',q=>q.is('verification_card_url',null).eq('is_verified',false))]);$('sJobs').textContent=j;$('sPharmacies').textContent=p;$('sPharmacists').textContent=s;$('sSales').textContent=l;$('sPending').textContent=pv;$('sNoProof').textContent=np}
+function jumpToPendingVerifications(){setTab('pharmacists');state.filterPending=true;state.filterNoProof=false;renderRows()}
+function jumpToNoProof(){setTab('pharmacists');state.filterNoProof=true;state.filterPending=false;renderRows()}
+function togglePendingFilter(){state.filterPending=!state.filterPending;if(state.filterPending)state.filterNoProof=false;renderRows()}
+function toggleNoProofFilter(){state.filterNoProof=!state.filterNoProof;if(state.filterNoProof)state.filterPending=false;renderRows()}
 async function loadRows(){state.loading=true;$('rows').innerHTML='<div class="loader"><span class="spinner"></span>جاري التحميل...</div>';try{let r;
   // Columns for pharmacist lists — EXCLUDES heavy JSONB (cv_data, meal_plan, habits_data)
   // so we don't send megabytes of base64 photos over the wire. cv_data has a summary
@@ -623,8 +664,8 @@ async function loadRows(){state.loading=true;$('rows').innerHTML='<div class="lo
   if(state.tab==='notifications')r=await sb.from('notifications').select('*').order('created_at',{ascending:false}).limit(200);
   if(state.tab==='contacts')r=await sb.from('contact_numbers').select('*').order('display_order',{ascending:true}).order('created_at',{ascending:true}).limit(50);
   if(r?.error){if(isMissingTable(r.error)){state.rows=[];renderRows();return}throw r.error}state.rows=r?.data||[];renderRows()}catch(err){$('rows').innerHTML='<div class="empty">'+esc(friendly(err))+'</div>'}finally{state.loading=false}}
-function filteredRows(){let rows=state.rows;if(state.tab==='pharmacists'&&state.filterPending){rows=rows.filter(x=>x.verification_status==='pending'&&x.is_verified!==true)}const q=$('search').value.trim().toLowerCase();if(!q)return rows;return rows.filter(x=>JSON.stringify(x).toLowerCase().includes(q))}
-function renderRows(){const rows=filteredRows();const filterBtn=$('pendingFilterBtn');if(filterBtn){filterBtn.classList.toggle('hide',state.tab!=='pharmacists');filterBtn.classList.toggle('is-active',state.filterPending===true)}if(state.tab==='helpers'){renderHelpers(rows);return}if(state.tab==='moderation'){renderModeration(rows);return}if(state.tab==='otps'){renderOtps(rows);return}if(state.tab==='resets'){renderResets(rows);return}if(state.tab==='notifications'){renderNotifications(rows);return}if(state.tab==='contacts'){renderContacts(rows);return}if(!rows.length){$('rows').innerHTML='<div class="empty">'+(state.filterPending?'مفيش طلبات توثيق معلقة حاليًا 🎉':'لا توجد بيانات')+'</div>';return}let html='';if(state.tab==='jobs')html=rows.map(jobRow).join('');if(state.tab==='pharmacies')html=rows.map(pharmacyRow).join('');if(state.tab==='pharmacists')html=rows.map(pharmacistRow).join('');if(state.tab==='sales')html=rows.map(saleRow).join('');$('rows').innerHTML=html}
+function filteredRows(){let rows=state.rows;if(state.tab==='pharmacists'){if(state.filterPending){rows=rows.filter(x=>x.verification_status==='pending'&&x.is_verified!==true)}else if(state.filterNoProof){rows=rows.filter(x=>!x.verification_card_url&&x.is_verified!==true)}}const q=$('search').value.trim().toLowerCase();if(!q)return rows;return rows.filter(x=>JSON.stringify(x).toLowerCase().includes(q))}
+function renderRows(){const rows=filteredRows();const pFilterBtn=$('pendingFilterBtn');const npFilterBtn=$('noProofFilterBtn');if(pFilterBtn){pFilterBtn.classList.toggle('hide',state.tab!=='pharmacists');pFilterBtn.classList.toggle('is-active',state.filterPending===true)}if(npFilterBtn){npFilterBtn.classList.toggle('hide',state.tab!=='pharmacists');npFilterBtn.classList.toggle('is-active',state.filterNoProof===true)}if(state.tab==='helpers'){renderHelpers(rows);return}if(state.tab==='moderation'){renderModeration(rows);return}if(state.tab==='otps'){renderOtps(rows);return}if(state.tab==='resets'){renderResets(rows);return}if(state.tab==='notifications'){renderNotifications(rows);return}if(state.tab==='contacts'){renderContacts(rows);return}if(!rows.length){let msg='لا توجد بيانات';if(state.filterPending)msg='مفيش طلبات توثيق معلقة حاليًا 🎉';else if(state.filterNoProof)msg='مفيش حسابات قديمة بدون إثبات 🎉';$('rows').innerHTML='<div class="empty">'+msg+'</div>';return}let html='';if(state.tab==='jobs')html=rows.map(jobRow).join('');if(state.tab==='pharmacies')html=rows.map(pharmacyRow).join('');if(state.tab==='pharmacists')html=rows.map(pharmacistRow).join('');if(state.tab==='sales')html=rows.map(saleRow).join('');$('rows').innerHTML=html}
 function jobRow(x){return '<div class="row"><div class="row-main"><div><h4 class="title">'+esc(x.title)+'</h4><div class="meta"><span class="chip blue">'+esc(x.pharmacies?.name||'صيدلية')+'</span><span class="chip">'+g(x.governorate)+(x.city?' · '+esc(x.city):'')+'</span><span class="chip '+(x.is_active?'green':'red')+'">'+(x.is_active?'نشط':'متوقف')+'</span><span class="chip">👁 '+(x.view_count||0)+'</span><span class="chip">'+ago(x.created_at)+'</span></div></div><div class="actions"><button class="btn small '+(x.is_active?'danger':'ok')+'" onclick="toggleJob(event,\''+x.id+'\','+(!x.is_active)+')">'+(x.is_active?'إيقاف':'تشغيل')+'</button><button class="btn small" onclick="openItem(\'job\',\''+x.id+'\')">عرض</button><button class="btn small danger" onclick="deleteRow(event,\'jobs\',\''+x.id+'\')">حذف</button></div></div>'+(x.description?'<p class="desc">'+esc(x.description)+'</p>':'')+'</div>'}
 function pharmacyDetailPanel(x){
   return `<details class="detail-panel"><summary>👁 كل تفاصيل الصيدلية</summary>
