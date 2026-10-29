@@ -1057,7 +1057,21 @@ function renderModeration(rows){
       <div class="field"><label class="label">رقم الواتساب</label><input class="input" id="resetPhone" placeholder="مثال: 2010xxxxxxx"></div>
       <div class="field"><label class="label">الباسورد الجديد</label><input class="input" id="resetPass" placeholder="٦ حروف/أرقام على الأقل"></div>
       <div class="tool-actions"><button class="btn primary" onclick="adminResetPassword(event)">تغيير الباسورد</button></div>
+    </div></details>
+    <details class="tool-collapse"><summary>🔐 تغيير باسورد الأدمن (حسابك)</summary><div>
+      <div class="field"><label class="label">الباسورد الجديدة</label><input class="input" type="password" id="myNewPass" autocomplete="new-password" placeholder="٦ حروف/أرقام على الأقل"></div>
+      <div class="field"><label class="label">أكّد الباسورد</label><input class="input" type="password" id="myNewPass2" autocomplete="new-password"></div>
+      <div class="tool-actions"><button class="btn primary" onclick="changeMyAdminPassword(event)">🔐 غيّر باسوردي</button></div>
     </div></details><div class="blocked-list-title">الأرقام المحظورة</div>${blocked}`;
+}
+async function changeMyAdminPassword(e){
+  const p1=($('myNewPass')?.value||''), p2=($('myNewPass2')?.value||'');
+  if(p1.length<6){toast('الباسورد لازم ٦ حروف/أرقام على الأقل','error');return}
+  if(p1!==p2){toast('الباسوردين مش زي بعض','error');return}
+  const btn=e.currentTarget,old=btn.textContent;btn.disabled=true;btn.textContent='جارِ...';
+  try{const r=await sb.auth.updateUser({password:p1});if(r.error)throw r.error;$('myNewPass').value='';$('myNewPass2').value='';toast('تم تغيير باسورد الأدمن ✅ — استخدمها المرة الجاية')}
+  catch(err){toast(friendly(err),'error')}
+  finally{btn.disabled=false;btn.textContent=old}
 }
 function blockedRow(x){return `<div class="row"><div class="row-main"><div><h4 class="title">${esc(x.phone)}</h4><div class="meta"><span class="chip red">محظور</span><span class="chip">${esc(x.reason||'بدون سبب')}</span><span class="chip">${ago(x.created_at)}</span></div></div><div class="actions"><button class="btn small ok" onclick="adminUnblockExisting(event,'${esc(x.phone)}')">فك الحظر</button></div></div></div>`}
 
