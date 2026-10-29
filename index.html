@@ -601,7 +601,7 @@ details.detail-panel[open]>summary::after{transform:rotate(180deg);background:va
 const SUPABASE_URL='https://wcdbtxvyjtsqdhigzdgi.supabase.co';
 const SUPABASE_ANON_KEY='sb_publishable_qspjh8HScIC9jjjyvnoGVA_06tT1jFl';
 const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
-const tabs=[['jobs','💼','الوظائف'],['pharmacies','🏥','الصيدليات'],['pharmacists','💊','الصيادلة'],['sales','🏪','صيدليات للبيع'],['helpers','🤝','المساعدين'],['moderation','🛡️','الحظر والباسورد'],['otps','🔑','أكواد التحقق'],['resets','🔄','طلبات استعادة'],['notifications','🔔','الإشعارات'],['contacts','📞','أرقام التواصل']];
+const tabs=[['jobs','💼','الوظائف'],['pharmacies','🏥','الصيدليات'],['pharmacists','💊','الصيادلة'],['sales','🏪','صيدليات للبيع'],['helpers','🤝','المساعدين'],['moderation','🛡️','الحظر والباسورد'],['otps','🔑','استعادة الباسورد'],['resets','🔄','طلبات استعادة'],['notifications','🔔','الإشعارات'],['contacts','📞','أرقام التواصل']];
 const govs={cairo:'القاهرة',giza:'الجيزة',alex:'الإسكندرية',qalyubia:'القليوبية',sharqia:'الشرقية',dakahlia:'الدقهلية',beheira:'البحيرة',kafr:'كفر الشيخ',gharbia:'الغربية',menoufia:'المنوفية',damietta:'دمياط',portsaid:'بورسعيد',ismailia:'الإسماعيلية',suez:'السويس',nsinai:'شمال سيناء',ssinai:'جنوب سيناء',redsea:'البحر الأحمر',matrouh:'مطروح',faiyum:'الفيوم',benisuef:'بني سويف',minya:'المنيا',assiut:'أسيوط',sohag:'سوهاج',qena:'قنا',luxor:'الأقصر',aswan:'أسوان',newvalley:'الوادي الجديد'};
 const state={user:null,manager:null,tab:'jobs',rows:[],loading:false,filterPending:false,filterNoProof:false};
 const $=id=>document.getElementById(id);
@@ -1061,41 +1061,91 @@ function renderModeration(rows){
 }
 function blockedRow(x){return `<div class="row"><div class="row-main"><div><h4 class="title">${esc(x.phone)}</h4><div class="meta"><span class="chip red">محظور</span><span class="chip">${esc(x.reason||'بدون سبب')}</span><span class="chip">${ago(x.created_at)}</span></div></div><div class="actions"><button class="btn small ok" onclick="adminUnblockExisting(event,'${esc(x.phone)}')">فك الحظر</button></div></div></div>`}
 
-// ============ OTP CODES TAB ============
-// Shows recent OTP codes. During onboarding (before WhatsApp API is configured),
-// admin can copy the plaintext code from here and send it manually via WhatsApp.
-// After the Edge Function is configured, this becomes an audit view only.
+// ============ OTP CODES TAB (v70) ============
+// Until the WhatsApp API is connected, members' reset requests wait here.
+// One click on "اعمل كود وابعته" generates a fresh code and opens WhatsApp with
+// the message ready — the admin just presses send.
+function otpIsPending(x){return !x.used && !x.issued_at && new Date(x.expires_at) > new Date()}
+function otpIsActive(x){return !x.used && !!x.issued_at && new Date(x.expires_at) > new Date()}
 function renderOtps(rows){
-  const active = rows.filter(x => !x.used && new Date(x.expires_at) > new Date());
-  const html = rows.length ? rows.map(otpRow).join('') : '<div class="empty">لا توجد أكواد تحقق</div>';
+  const pending = rows.filter(otpIsPending);
+  const others = rows.filter(x => !otpIsPending(x));
+  const pendingHtml = pending.length
+    ? '<div class="admin-alerts-block"><div class="admin-alerts-title">⏳ أعضاء مستنيين الكود (' + pending.length + ')</div>' + pending.map(otpRow).join('') + '</div>'
+    : '<div class="empty" style="padding:14px">مفيش حد مستني كود دلوقتي 🎉</div>';
   $('rows').innerHTML = `<div style="padding:8px 4px;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">
-    <span style="font-weight:900;font-size:13px;color:var(--sea2)">🔑 نشطة: ${active.length}</span>
+    <span style="font-weight:900;font-size:13px;color:var(--sea2)">🔑 مستنيين: ${pending.length}</span>
     <button class="btn small primary" onclick="loadRows()">🔄 تحديث</button>
-  </div>${html}`;
+  </div>
+  <details class="tool-collapse"><summary>📤 ابعت كود استعادة لعضو برقمه</summary><div>
+    <div class="field"><label class="label">رقم واتساب العضو</label><input class="input" id="otpPhone" placeholder="مثال: 010xxxxxxxx"></div>
+    <div class="tool-actions"><button class="btn primary" onclick="issueOtpByPhone(event)">📤 اعمل كود وافتح واتساب</button></div>
+    <p class="desc">العضو بعد كده يفتح "نسيت الباسورد" في الموقع، يكتب رقمه، وبعدين الكود.</p>
+  </div></details>
+  ${pendingHtml}
+  ${others.length ? '<div class="blocked-list-title">السجل</div>' + others.map(otpRow).join('') : ''}`;
 }
 function otpRow(x){
-  const isActive = !x.used && new Date(x.expires_at) > new Date();
-  const status = x.used ? '<span class="chip red">مستخدم</span>' :
-                 (isActive ? '<span class="chip green">صالح</span>' : '<span class="chip red">منتهي</span>');
-  const verified = x.verified ? '<span class="chip verified">✅ تم التحقق</span>' : '';
-  return `<div class="row ${isActive?'row-pending':''}"><div class="row-main">
+  const pending = otpIsPending(x), active = otpIsActive(x);
+  const status = x.used ? (x.verified ? '<span class="chip verified">✅ غيّر الباسورد</span>' : '<span class="chip red">ملغي</span>')
+               : pending ? '<span class="chip pending">⏳ مستني الكود</span>'
+               : active ? '<span class="chip green">📤 اتبعت — صالح</span>'
+               : '<span class="chip red">منتهي</span>';
+  const via = x.delivery === 'whatsapp' ? '<span class="chip">🤖 تلقائي</span>' : '';
+  return `<div class="row ${pending?'row-pending':''}"><div class="row-main">
     <div class="admin-person">
       <span class="admin-avatar">🔑</span>
       <div>
-        <h4 class="title">📱 ${esc(x.whatsapp)}</h4>
-        <div class="meta">
-          ${status}
-          ${verified}
-          <span class="chip">محاولات: ${x.attempts||0}/5</span>
-          <span class="chip">أُرسل ${ago(x.created_at)}</span>
+        <h4 class="title">${esc(x.full_name||'عضو')} · <span dir="ltr">${esc(x.whatsapp)}</span></h4>
+        <div class="meta">${status}${via}
+          ${x.attempts?`<span class="chip">محاولات غلط: ${x.attempts}/5</span>`:''}
+          <span class="chip">طلب ${ago(x.created_at)}</span>
+          ${x.issued_at?`<span class="chip">اتبعت ${ago(x.issued_at)}</span>`:''}
         </div>
       </div>
     </div>
     <div class="actions">
-      ${isActive ? `<a class="btn small ok" href="${waLink(x.whatsapp,'أهلاً 👋\nمعاك فريق CareerK.\nاستلمنا طلبك لاستعادة كلمة السر، وحقنبعتلك كود التحقق دلوقتي.\nلو مش أنت اللي طلبت، تجاهل الرسالة.\n\n— فريق CareerK · مجتمع الصيادلة والصيدليات في مصر')}" target="_blank">📱 راسل واتساب</a>` : ''}
+      ${!x.used && new Date(x.expires_at) > new Date() ? `<button class="btn small ok" onclick="issueOtp(event,'${x.id}')">${pending?'📤 اعمل كود وابعته':'🔁 كود جديد'}</button>` : ''}
       <button class="btn small danger" onclick="deleteRow(event,'otp_codes','${x.id}')">حذف</button>
     </div>
   </div></div>`;
+}
+function otpWaMessage(name, code){
+  return careerkMsg(name, `كود استعادة كلمة السر بتاعك هو:\n\n*${code}*\n\nارجع لصفحة "نسيت الباسورد" في الموقع واكتب الكود — صالح لمدة ساعة:\nhttps://careerk.net\n\nلو مش أنت اللي طلبته، تجاهل الرسالة.`);
+}
+function otpOpenWhatsApp(win, res){
+  const url = waLink(res.whatsapp, otpWaMessage(res.full_name, res.code));
+  if (win && !win.closed) win.location.href = url; else window.open(url, '_blank');
+  toast('الكود: ' + res.code + ' — اضغط إرسال في واتساب');
+}
+async function issueOtp(e, id){
+  const btn = e.currentTarget, old = btn.textContent;
+  const win = window.open('', '_blank'); // open now so the popup isn't blocked
+  btn.disabled = true; btn.textContent = 'جارِ...';
+  try {
+    const r = await sb.rpc('admin_issue_reset_code', { p_otp_id: id });
+    if (r.error) throw r.error;
+    if (!r.data || !r.data.ok) throw new Error(r.data && r.data.error === 'not_admin' ? 'الحساب ده مش مدير' : 'الطلب ده اتلغى أو اتستخدم');
+    otpOpenWhatsApp(win, r.data);
+    await loadRows();
+  } catch (err) { if (win) win.close(); toast(friendly(err) + ' - شغّل SQL v70', 'error'); }
+  finally { btn.disabled = false; btn.textContent = old; }
+}
+async function issueOtpByPhone(e){
+  const phone = ($('otpPhone')?.value || '').trim();
+  if (!phone){ toast('اكتب رقم العضو', 'error'); return; }
+  const btn = e.currentTarget, old = btn.textContent;
+  const win = window.open('', '_blank');
+  btn.disabled = true; btn.textContent = 'جارِ...';
+  try {
+    const r = await sb.rpc('admin_issue_reset_code_by_phone', { p_whatsapp: phone });
+    if (r.error) throw r.error;
+    if (!r.data || !r.data.ok) throw new Error(r.data && r.data.error === 'phone_not_found' ? 'الرقم ده مش متسجّل في كاريرك' : 'حصلت مشكلة');
+    otpOpenWhatsApp(win, r.data);
+    $('otpPhone').value = '';
+    await loadRows();
+  } catch (err) { if (win) win.close(); toast(friendly(err), 'error'); }
+  finally { btn.disabled = false; btn.textContent = old; }
 }
 
 // ============ PASSWORD RESET REQUESTS TAB (legacy v64 flow) ============
@@ -1175,7 +1225,7 @@ function adminAlertRow(x){
       <span class="chip">${ago(x.created_at)}</span>
     </div>
   </div><div class="actions">
-    <button class="btn small primary" onclick="jumpToPendingVerifications()">🔍 راجع طلبات التوثيق</button>
+    ${String(x.title||'').includes('🔑') ? `<button class="btn small primary" onclick="setTab('otps')">🔑 افتح أكواد التحقق</button>` : `<button class="btn small primary" onclick="jumpToPendingVerifications()">🔍 راجع طلبات التوثيق</button>`}
     <button class="btn small danger" onclick="deleteRow(event,'notifications','${x.id}')">حذف التنبيه</button>
   </div></div>${x.body?`<p class="desc">${esc(x.body)}</p>`:''}</div>`;
 }
