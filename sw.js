@@ -1,4 +1,4 @@
-const CAREERK_ADMIN_CACHE = 'careerk-admin-pwa-v61';
+const CAREERK_ADMIN_CACHE = 'careerk-admin-pwa-v63';
 
 const ADMIN_ASSETS = [
   './',
