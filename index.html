@@ -766,10 +766,10 @@ function waLink(num, msg, name){
   return n?'https://wa.me/'+n+'?text='+encodeURIComponent(finalMsg):'#'
 }
 const NAV_MAIN=['pharmacists','jobs','pharmacies','notifications'];
-const NAV_SHORT={pharmacists:'الصيادلة',jobs:'الوظائف',pharmacies:'الصيدليات',notifications:'الإشعارات'};
+const NAV_SHORT={pharmacists:'الصيادلة',jobs:'الوظائف',pharmacies:'الصيدليات',notifications:'الإشعارات',sales:'للبيع',helpers:'المساعدين',moderation:'الحظر',otps:'الأكواد',resets:'الطلبات',contacts:'الأرقام'};
 function renderTabs(){const html=tabs.map(t=>'<button class="tab '+(state.tab===t[0]?'active':'')+'" onclick="setTab(\''+t[0]+'\')"><span>'+t[1]+'</span><b>'+t[2]+'</b></button>').join('');$('sideTabs').innerHTML=html;
   const inMain=NAV_MAIN.includes(state.tab);
-  $('mobileTabs').innerHTML=NAV_MAIN.map(k=>{const t=tabs.find(x=>x[0]===k);return '<button class="tab '+(state.tab===k?'active':'')+'" onclick="navTo(\''+k+'\')"><span>'+t[1]+'</span><b>'+NAV_SHORT[k]+'</b></button>'}).join('')+'<button class="tab '+(inMain?'':'active')+'" onclick="openMore()"><span>☰</span><b>'+(inMain?'المزيد':esc((tabs.find(x=>x[0]===state.tab)||[])[2]||'المزيد'))+'</b></button>';
+  $('mobileTabs').innerHTML=NAV_MAIN.map(k=>{const t=tabs.find(x=>x[0]===k);return '<button class="tab '+(state.tab===k?'active':'')+'" onclick="navTo(\''+k+'\')"><span>'+t[1]+'</span><b>'+NAV_SHORT[k]+'</b></button>'}).join('')+'<button class="tab '+(inMain?'':'active')+'" onclick="openMore()"><span>☰</span><b>'+(inMain?'المزيد':esc(NAV_SHORT[state.tab]||'المزيد'))+'</b></button>';
   const mg=$('moreGrid');if(mg)mg.innerHTML=tabs.map(t=>'<button type="button" class="'+(state.tab===t[0]?'active':'')+'" onclick="navTo(\''+t[0]+'\')"><i>'+t[1]+'</i>'+t[2]+'</button>').join('')}
 function openMore(){renderTabs();$('moreSheet').classList.add('show')}
 function closeMore(){$('moreSheet').classList.remove('show')}
