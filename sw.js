@@ -1,4 +1,4 @@
-const CAREERK_ADMIN_CACHE = 'careerk-admin-pwa-v63';
+const CAREERK_ADMIN_CACHE = 'careerk-admin-pwa-v64';
 
 const ADMIN_ASSETS = [
   './',
@@ -52,4 +52,14 @@ self.addEventListener('fetch', event => {
       })
       .catch(() => caches.match(request))
   );
+});
+
+// Tapping an admin alert focuses the open panel (or opens it) on the password tab.
+self.addEventListener('notificationclick', event => {
+  event.notification.close();
+  event.waitUntil((async () => {
+    const all = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+    for (const c of all) { if ('focus' in c) { await c.focus(); return; } }
+    await self.clients.openWindow('/');
+  })());
 });

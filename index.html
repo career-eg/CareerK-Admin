@@ -573,6 +573,19 @@ details.detail-panel{border-radius:14px;border-width:1px}
 .login-card .login-head p{position:relative;color:#cfe2dc;margin:0}
 .login-body{padding:20px 20px 22px}
 .input{border-radius:14px;padding:12px 14px;font-size:15px}
+
+.dash-alerts{grid-template-columns:1fr 1fr}
+.dash-alert.pw{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16)}
+.dash-alert.pw.hot{background:linear-gradient(135deg,#c23b22,#FF6B00);border-color:transparent;box-shadow:0 10px 22px rgba(194,59,34,.35);animation:pwPulse 1.6s ease-in-out infinite}
+@keyframes pwPulse{50%{transform:scale(1.03)}}
+.dash-alert.bell{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16)}
+.dash-alert.bell b{font-size:16px}
+.dash-alert.bell.on b{color:#7ee2a8}
+.tab{position:relative}
+.tab-badge{font-style:normal;position:absolute;top:4px;inset-inline-start:6px;min-width:18px;height:18px;padding:0 5px;border-radius:99px;background:#c23b22;color:#fff;font:900 11px/18px Nunito,Tajawal,sans-serif;text-align:center;box-shadow:0 0 0 2px #fff}
+.sidebar .tab .tab-badge{position:static;margin-inline-start:auto}
+.more-grid button{position:relative}
+.more-grid button i.tab-badge{position:absolute;top:8px;inset-inline-start:8px;width:auto;height:20px;min-width:20px;border-radius:99px;display:block;background:#c23b22;font:900 11px/20px Nunito,Tajawal,sans-serif;color:#fff}
 /* bottom nav (mobile) + more sheet */
 .more-sheet{position:fixed;inset:0;z-index:70;background:rgba(6,47,48,.45);backdrop-filter:blur(3px);display:none;align-items:flex-end}
 .more-sheet.show{display:flex}
@@ -673,6 +686,8 @@ details.detail-panel{border-radius:14px;border-width:1px}
     <div class="dash-alerts">
       <button type="button" class="dash-alert pend" onclick="jumpToPendingVerifications()"><i>⏳</i><div><b id="sPending">0</b><small>طلبات توثيق مستنية</small></div></button>
       <button type="button" class="dash-alert nop" onclick="jumpToNoProof()"><i>🚨</i><div><b id="sNoProof">0</b><small>حسابات بدون إثبات</small></div></button>
+      <button type="button" class="dash-alert pw" id="pwAlert" onclick="navTo('otps')"><i>🔑</i><div><b id="sPw">0</b><small>مستنيين كود الباسورد</small></div></button>
+      <button type="button" class="dash-alert bell" id="bellAlert" onclick="enableAdminAlerts()"><i>🔔</i><div><b id="bellState">فعّل</b><small id="bellSub">تنبيهات على الموبايل</small></div></button>
     </div>
     <div class="dash-stats">
       <button type="button" onclick="setTab('jobs')"><b id="sJobs">0</b><span>وظائف</span></button>
@@ -767,14 +782,15 @@ function waLink(num, msg, name){
 }
 const NAV_MAIN=['pharmacists','jobs','pharmacies','notifications'];
 const NAV_SHORT={pharmacists:'الصيادلة',jobs:'الوظائف',pharmacies:'الصيدليات',notifications:'الإشعارات',sales:'للبيع',helpers:'المساعدين',moderation:'الحظر',otps:'الأكواد',resets:'الطلبات',contacts:'الأرقام'};
-function renderTabs(){const html=tabs.map(t=>'<button class="tab '+(state.tab===t[0]?'active':'')+'" onclick="setTab(\''+t[0]+'\')"><span>'+t[1]+'</span><b>'+t[2]+'</b></button>').join('');$('sideTabs').innerHTML=html;
+function tabBadge(k){const n=(state.badges||{})[k]||0;return n?'<i class="tab-badge">'+n+'</i>':''}
+function renderTabs(){const html=tabs.map(t=>'<button class="tab '+(state.tab===t[0]?'active':'')+'" onclick="setTab(\''+t[0]+'\')"><span>'+t[1]+'</span><b>'+t[2]+'</b>'+tabBadge(t[0])+'</button>').join('');$('sideTabs').innerHTML=html;
   const inMain=NAV_MAIN.includes(state.tab);
-  $('mobileTabs').innerHTML=NAV_MAIN.map(k=>{const t=tabs.find(x=>x[0]===k);return '<button class="tab '+(state.tab===k?'active':'')+'" onclick="navTo(\''+k+'\')"><span>'+t[1]+'</span><b>'+NAV_SHORT[k]+'</b></button>'}).join('')+'<button class="tab '+(inMain?'':'active')+'" onclick="openMore()"><span>☰</span><b>'+(inMain?'المزيد':esc(NAV_SHORT[state.tab]||'المزيد'))+'</b></button>';
-  const mg=$('moreGrid');if(mg)mg.innerHTML=tabs.map(t=>'<button type="button" class="'+(state.tab===t[0]?'active':'')+'" onclick="navTo(\''+t[0]+'\')"><i>'+t[1]+'</i>'+t[2]+'</button>').join('')}
+  $('mobileTabs').innerHTML=NAV_MAIN.map(k=>{const t=tabs.find(x=>x[0]===k);return '<button class="tab '+(state.tab===k?'active':'')+'" onclick="navTo(\''+k+'\')"><span>'+t[1]+'</span><b>'+NAV_SHORT[k]+'</b></button>'}).join('')+'<button class="tab '+(inMain?'':'active')+'" onclick="openMore()"><span>☰</span>'+(((state.badges||{}).otps||0)+((state.badges||{}).resets||0)?'<i class="tab-badge">'+(((state.badges||{}).otps||0)+((state.badges||{}).resets||0))+'</i>':'')+'<b>'+(inMain?'المزيد':esc(NAV_SHORT[state.tab]||'المزيد'))+'</b></button>';
+  const mg=$('moreGrid');if(mg)mg.innerHTML=tabs.map(t=>'<button type="button" class="'+(state.tab===t[0]?'active':'')+'" onclick="navTo(\''+t[0]+'\')"><i>'+t[1]+'</i>'+t[2]+tabBadge(t[0])+'</button>').join('')}
 function openMore(){renderTabs();$('moreSheet').classList.add('show')}
 function closeMore(){$('moreSheet').classList.remove('show')}
 function navTo(t){closeMore();setTab(t);if(window.innerWidth<=820){const p=document.querySelector('.panel');if(p)p.scrollIntoView({behavior:'smooth',block:'start'})}}
-function renderTop(){const a=$('topActions');if(state.manager){const nm=state.manager.full_name||'Admin';a.innerHTML='<span class="who">'+esc(nm)+'</span><button class="ic-btn out" onclick="logout()" title="خروج" aria-label="خروج">⏻</button>';const h=$('dashHello');if(h)h.textContent='أهلاً يا '+nm+' 👋'}else{a.innerHTML='<a class="ic-btn" href="https://careerk.net/" target="_blank" title="الموقع" aria-label="الموقع">↗</a>'}}
+function renderTop(){const a=$('topActions');if(state.manager){const nm=state.manager.full_name||'Admin';a.innerHTML='<span class="who">'+esc(nm)+'</span><button class="ic-btn out" onclick="logout()" title="خروج" aria-label="خروج">⏻</button>';const h=$('dashHello');if(h)h.textContent='أهلاً يا '+nm+' 👋';renderBellState()}else{a.innerHTML='<a class="ic-btn" href="https://careerk.net/" target="_blank" title="الموقع" aria-label="الموقع">↗</a>'}}
 async function init(){renderTabs();renderTop();const r=await sb.auth.getSession();if(r.data.session){state.user=r.data.session.user;await loadManager();if(state.manager)showDash();else showLogin()}else{showLogin()}}
 function showLogin(){document.body.classList.remove('authed');$('loginView').classList.remove('hide');$('dashView').classList.add('hide');$('mobileTabs').classList.add('hide');renderTop()}
 function showDash(){document.body.classList.add('authed');$('loginView').classList.add('hide');$('dashView').classList.remove('hide');$('mobileTabs').classList.remove('hide');renderTop();renderTabs();loadAll()}
@@ -782,7 +798,59 @@ async function login(e){e.preventDefault();$('loginError').innerHTML='';$('login
 async function loadManager(){if(!state.user)return;const r=await sb.from('managers').select('*').eq('user_id',state.user.id).eq('is_active',true).maybeSingle();if(r.error)throw r.error;state.manager=r.data}
 async function logout(){await sb.auth.signOut();state.user=null;state.manager=null;showLogin();toast('تم الخروج')}
 function setTab(t){state.tab=t;state.filterPending=false;state.filterNoProof=false;$('search').value='';const found=tabs.find(x=>x[0]===t);$('panelTitle').textContent=found?found[2]:'';renderTabs();loadRows()}
-async function loadAll(){await Promise.all([loadStats(),loadRows()])}
+
+/* ===== Password-reset alerts for the admin =====
+   Polls every 30s while the panel is open (also in a background tab):
+   new request → sound + toast + badge + phone notification (if allowed). */
+async function countPendingPw(){
+  const nowIso=new Date().toISOString();
+  const [o,r]=await Promise.all([
+    safeCount('otp_codes',q=>q.eq('used',false).is('issued_at',null).gt('expires_at',nowIso)),
+    safeCount('password_reset_requests',q=>q.eq('status','pending'))
+  ]);
+  return {otps:o,resets:r};
+}
+function beep(){
+  try{const C=window.AudioContext||window.webkitAudioContext;if(!C)return;const c=state._ac||(state._ac=new C());
+    [0,0.18].forEach(t=>{const o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.value=880;g.gain.setValueAtTime(0.0001,c.currentTime+t);g.gain.exponentialRampToValueAtTime(0.3,c.currentTime+t+0.02);g.gain.exponentialRampToValueAtTime(0.0001,c.currentTime+t+0.15);o.connect(g);g.connect(c.destination);o.start(c.currentTime+t);o.stop(c.currentTime+t+0.16)})}catch(e){}
+}
+async function adminPhoneNotify(title,body){
+  if(!('Notification' in window)||Notification.permission!=='granted')return;
+  const opts={body,icon:'./icon-192.png?v=61',badge:'./icon-192.png?v=61',tag:'careerk-admin-pw',renotify:true,dir:'rtl',lang:'ar',requireInteraction:true};
+  try{const reg=await navigator.serviceWorker?.getRegistration();if(reg)return reg.showNotification(title,opts);new Notification(title,opts)}catch(e){}
+}
+function renderBellState(){
+  const b=$('bellState'),s=$('bellSub'),card=$('bellAlert');if(!b)return;
+  const on='Notification' in window&&Notification.permission==='granted';
+  b.textContent=on?'شغالة':'فعّل';s.textContent=on?'تنبيهات الموبايل':'تنبيهات على الموبايل';card.classList.toggle('on',on);
+}
+async function enableAdminAlerts(){
+  beep();
+  if(!('Notification' in window)){toast('المتصفح ده مش بيدعم الإشعارات — هيوصلك صوت وتنبيه جوه اللوحة');return}
+  try{const r=await Notification.requestPermission();if(r==='granted'){adminPhoneNotify('🔔 التنبيهات اشتغلت','أي حد يطلب استعادة الباسورد هيوصلك إشعار هنا.');toast('تمام 🔔')}else toast('الإشعارات مقفولة من إعدادات المتصفح')}catch(e){}
+  renderBellState();
+}
+async function checkPwRequests(silent){
+  if(!state.manager)return;
+  let c;try{c=await countPendingPw()}catch(e){return}
+  const total=c.otps+c.resets, prev=state._pwTotal;
+  state._pwTotal=total; state.badges=Object.assign({},state.badges,c);
+  if($('sPw'))$('sPw').textContent=total;
+  const card=$('pwAlert');if(card)card.classList.toggle('hot',total>0);
+  document.title=(total?'('+total+') ':'')+'CareerK Admin';
+  renderTabs();
+  if(!silent&&prev!=null&&total>prev){
+    const n=total-prev;
+    beep();
+    toast('🔑 '+(n===1?'عضو جديد طلب':'في '+n+' أعضاء طلبوا')+' استعادة الباسورد');
+    adminPhoneNotify('🔑 طلب استعادة باسورد','فيه '+total+' عضو مستني الكود — افتح لوحة الأدمن وابعته على واتساب.');
+    if(state.tab==='otps'||state.tab==='resets')loadRows();
+  }
+}
+setInterval(()=>checkPwRequests(false),30000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkPwRequests(false)});
+
+async function loadAll(){await Promise.all([loadStats(),loadRows(),checkPwRequests(true)])}
 async function safeCount(table,filter){try{let q=sb.from(table).select('id',{count:'exact',head:true});if(filter)q=filter(q);const r=await q;return r.error?0:(r.count??0)}catch(e){return 0}}
 async function loadStats(){const [j,p,s,l,pv,np]=await Promise.all([safeCount('jobs'),safeCount('pharmacies'),safeCount('pharmacists'),safeCount('pharmacy_sales'),safeCount('pharmacists',q=>q.eq('verification_status','pending').eq('is_verified',false)),safeCount('pharmacists',q=>q.is('verification_card_url',null).eq('is_verified',false))]);$('sJobs').textContent=j;$('sPharmacies').textContent=p;$('sPharmacists').textContent=s;$('sSales').textContent=l;$('sPending').textContent=pv;$('sNoProof').textContent=np}
 function jumpToPendingVerifications(){setTab('pharmacists');state.filterPending=true;state.filterNoProof=false;renderRows()}
@@ -1552,7 +1620,7 @@ init();
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js?v=63').catch(() => {});
+    navigator.serviceWorker.register('./sw.js?v=64').catch(() => {});
   });
 }
 
