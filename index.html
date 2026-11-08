@@ -586,6 +586,32 @@ details.detail-panel{border-radius:14px;border-width:1px}
 .sidebar .tab .tab-badge{position:static;margin-inline-start:auto}
 .more-grid button{position:relative}
 .more-grid button i.tab-badge{position:absolute;top:8px;inset-inline-start:8px;width:auto;height:20px;min-width:20px;border-radius:99px;display:block;background:#c23b22;font:900 11px/20px Nunito,Tajawal,sans-serif;color:#fff}
+
+/* helper permissions */
+.perm-modal{position:fixed;inset:0;z-index:80;background:rgba(6,47,48,.45);display:none;align-items:flex-end;justify-content:center}
+.perm-modal.show{display:flex}
+.perm-card{width:100%;max-width:560px;max-height:92vh;overflow:auto;background:#FFFBF5;border-radius:26px 26px 0 0;padding:10px 16px calc(16px + env(safe-area-inset-bottom));animation:sheetUp .2s ease}
+@media(min-width:821px){.perm-modal{align-items:center}.perm-card{border-radius:24px}}
+.perm-card h4{margin:0 0 6px;font:900 18px Tajawal,sans-serif;color:#062F30}
+.perm-help{margin:0 0 12px;font:700 12.5px/1.6 Tajawal,sans-serif;color:var(--mute)}
+.perm-list{display:grid;gap:8px}
+.perm-item{display:flex;align-items:center;gap:10px;border:1px solid var(--line);background:#fff;border-radius:16px;padding:10px 12px;cursor:pointer}
+.perm-item input{width:20px;height:20px;accent-color:#FF6B00;flex:0 0 auto}
+.perm-item:has(input:checked){border-color:#FF6B00;background:#fff6ee}
+.perm-ic{width:36px;height:36px;border-radius:12px;background:var(--sea-soft);display:grid;place-items:center;font-size:18px;flex:0 0 auto}
+.perm-tx{display:flex;flex-direction:column;gap:2px;min-width:0}
+.perm-tx b{font:900 14px Tajawal,sans-serif;color:#062F30}
+.perm-tx small{font:700 11.5px Tajawal,sans-serif;color:var(--mute)}
+.perm-actions{display:flex;gap:8px;margin-top:14px}
+.perm-actions .btn{flex:1;min-height:46px}
+.perm-chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+.chip.perm-chip{background:#fff6ee;color:#a04b00;border-color:#f3c9a6}
+.act-list{display:flex;flex-direction:column;gap:6px;margin-top:6px}
+.act-row{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:8px 12px;font:700 12.5px Tajawal,sans-serif;color:var(--ink)}
+.act-row b{color:#062F30}
+.act-row i{font-style:normal;color:#a04b00}
+.act-row small{margin-inline-start:auto;color:var(--mute)}
+body.is-helper .dash-title span{color:#7ee2a8}
 /* bottom nav (mobile) + more sheet */
 .more-sheet{position:fixed;inset:0;z-index:70;background:rgba(6,47,48,.45);backdrop-filter:blur(3px);display:none;align-items:flex-end}
 .more-sheet.show{display:flex}
@@ -714,6 +740,15 @@ details.detail-panel{border-radius:14px;border-width:1px}
   </div>
 </section>
 <nav class="mobile-tabs" id="mobileTabs" aria-label="أقسام اللوحة"></nav>
+<div class="perm-modal" id="permModal" onclick="if(event.target===this)closePermModal()"><div class="perm-card">
+  <div class="more-grip"></div>
+  <h4>🔐 صلاحيات <span class="perm-who"></span></h4>
+  <p class="perm-help">اختار الحاجات اللي يقدر يعملها. هيدخل admin.careerk.net برقمه والباسورد بتاعه، ويشوف الأقسام دي بس.</p>
+  <div class="perm-list" id="permList"></div>
+  <label class="label" style="margin-top:10px;display:block">نبذة عن دوره (اختياري)</label>
+  <input class="input" id="permNote" placeholder="مثال: مسؤول التوثيق">
+  <div class="perm-actions"><button class="btn" type="button" onclick="closePermModal()">إلغاء</button><button class="btn primary" type="button" onclick="saveHelperPerms(event)">حفظ الصلاحيات</button></div>
+</div></div>
 <div class="more-sheet" id="moreSheet" onclick="if(event.target===this)closeMore()"><div class="more-card"><div class="more-grip"></div><h4>كل الأقسام</h4><div class="more-grid" id="moreGrid"></div></div></div>
 </div>
 <div class="toast" id="toast"></div>
@@ -783,21 +818,24 @@ function waLink(num, msg, name){
 const NAV_MAIN=['pharmacists','jobs','pharmacies','notifications'];
 const NAV_SHORT={pharmacists:'الصيادلة',jobs:'الوظائف',pharmacies:'الصيدليات',notifications:'الإشعارات',sales:'للبيع',helpers:'المساعدين',moderation:'الحظر',otps:'الأكواد',resets:'الطلبات',contacts:'الأرقام'};
 function tabBadge(k){const n=(state.badges||{})[k]||0;return n?'<i class="tab-badge">'+n+'</i>':''}
-function renderTabs(){const html=tabs.map(t=>'<button class="tab '+(state.tab===t[0]?'active':'')+'" onclick="setTab(\''+t[0]+'\')"><span>'+t[1]+'</span><b>'+t[2]+'</b>'+tabBadge(t[0])+'</button>').join('');$('sideTabs').innerHTML=html;
+function visibleTabs(){return tabs.filter(t=>canTab(t[0]))}
+function renderTabs(){const html=visibleTabs().map(t=>'<button class="tab '+(state.tab===t[0]?'active':'')+'" onclick="setTab(\''+t[0]+'\')"><span>'+t[1]+'</span><b>'+t[2]+'</b>'+tabBadge(t[0])+'</button>').join('');$('sideTabs').innerHTML=html;
   const inMain=NAV_MAIN.includes(state.tab);
-  $('mobileTabs').innerHTML=NAV_MAIN.map(k=>{const t=tabs.find(x=>x[0]===k);return '<button class="tab '+(state.tab===k?'active':'')+'" onclick="navTo(\''+k+'\')"><span>'+t[1]+'</span><b>'+NAV_SHORT[k]+'</b></button>'}).join('')+'<button class="tab '+(inMain?'':'active')+'" onclick="openMore()"><span>☰</span>'+(((state.badges||{}).otps||0)+((state.badges||{}).resets||0)?'<i class="tab-badge">'+(((state.badges||{}).otps||0)+((state.badges||{}).resets||0))+'</i>':'')+'<b>'+(inMain?'المزيد':esc(NAV_SHORT[state.tab]||'المزيد'))+'</b></button>';
-  const mg=$('moreGrid');if(mg)mg.innerHTML=tabs.map(t=>'<button type="button" class="'+(state.tab===t[0]?'active':'')+'" onclick="navTo(\''+t[0]+'\')"><i>'+t[1]+'</i>'+t[2]+tabBadge(t[0])+'</button>').join('')}
+  $('mobileTabs').innerHTML=NAV_MAIN.filter(canTab).map(k=>{const t=tabs.find(x=>x[0]===k);return '<button class="tab '+(state.tab===k?'active':'')+'" onclick="navTo(\''+k+'\')"><span>'+t[1]+'</span><b>'+NAV_SHORT[k]+'</b></button>'}).join('')+'<button class="tab '+(inMain?'':'active')+'" onclick="openMore()"><span>☰</span>'+(((state.badges||{}).otps||0)+((state.badges||{}).resets||0)?'<i class="tab-badge">'+(((state.badges||{}).otps||0)+((state.badges||{}).resets||0))+'</i>':'')+'<b>'+(inMain?'المزيد':esc(NAV_SHORT[state.tab]||'المزيد'))+'</b></button>';
+  const mg=$('moreGrid');if(mg)mg.innerHTML=visibleTabs().map(t=>'<button type="button" class="'+(state.tab===t[0]?'active':'')+'" onclick="navTo(\''+t[0]+'\')"><i>'+t[1]+'</i>'+t[2]+tabBadge(t[0])+'</button>').join('')}
 function openMore(){renderTabs();$('moreSheet').classList.add('show')}
 function closeMore(){$('moreSheet').classList.remove('show')}
 function navTo(t){closeMore();setTab(t);if(window.innerWidth<=820){const p=document.querySelector('.panel');if(p)p.scrollIntoView({behavior:'smooth',block:'start'})}}
-function renderTop(){const a=$('topActions');if(state.manager){const nm=state.manager.full_name||'Admin';a.innerHTML='<span class="who">'+esc(nm)+'</span><button class="ic-btn out" onclick="logout()" title="خروج" aria-label="خروج">🚪</button>';const h=$('dashHello');if(h)h.textContent='أهلاً يا '+nm+' 👋';renderBellState()}else{a.innerHTML='<a class="ic-btn" href="https://careerk.net/" target="_blank" title="الموقع" aria-label="الموقع">↗</a>'}}
+function renderTop(){const a=$('topActions');if(state.manager){const nm=state.manager.full_name||'Admin';a.innerHTML='<span class="who">'+esc(nm)+'</span><button class="ic-btn out" onclick="logout()" title="خروج" aria-label="خروج">🚪</button>';const h=$('dashHello');if(h)h.textContent='أهلاً يا '+nm+' 👋'+(state.isHelper?' · مساعد ('+(state.perms||[]).map(k=>(PERMS.find(p=>p[0]===k)||[,,k])[2]).join('، ')+')':'');renderBellState()}else{a.innerHTML='<a class="ic-btn" href="https://careerk.net/" target="_blank" title="الموقع" aria-label="الموقع">↗</a>'}}
 async function init(){renderTabs();renderTop();const r=await sb.auth.getSession();if(r.data.session){state.user=r.data.session.user;await loadManager();if(state.manager)showDash();else showLogin()}else{showLogin()}}
 function showLogin(){document.body.classList.remove('authed');$('loginView').classList.remove('hide');$('dashView').classList.add('hide');$('mobileTabs').classList.add('hide');renderTop()}
-function showDash(){document.body.classList.add('authed');$('loginView').classList.add('hide');$('dashView').classList.remove('hide');$('mobileTabs').classList.remove('hide');renderTop();renderTabs();loadAll()}
-async function login(e){e.preventDefault();$('loginError').innerHTML='';$('loginBtn').disabled=true;$('loginBtn').innerHTML='<span class="spinner"></span>';try{const email=adminToEmail($('adminLogin').value),password=$('pass').value;const r=await sb.auth.signInWithPassword({email,password});if(r.error)throw r.error;state.user=r.data.user;await loadManager();if(!state.manager){await sb.auth.signOut();throw new Error('الحساب ده مش مدير')}showDash();toast('تم الدخول')}catch(err){showError('loginError',friendly(err))}finally{$('loginBtn').disabled=false;$('loginBtn').textContent='دخول لوحة التحكم'}}
-async function loadManager(){if(!state.user)return;const r=await sb.from('managers').select('*').eq('user_id',state.user.id).eq('is_active',true).maybeSingle();if(r.error)throw r.error;state.manager=r.data}
-async function logout(){await sb.auth.signOut();state.user=null;state.manager=null;showLogin();toast('تم الخروج')}
-function setTab(t){state.tab=t;state.filterPending=false;state.filterNoProof=false;$('search').value='';const found=tabs.find(x=>x[0]===t);$('panelTitle').textContent=found?found[2]:'';renderTabs();loadRows()}
+function pruneHero(){if(!state.isHelper)return;const h=document.querySelector('.dash-hero');if(!h)return;h.querySelectorAll('[onclick]').forEach(el=>{const oc=el.getAttribute('onclick')||'';const t=/(?:setTab|navTo)\('([a-z]+)'\)/.exec(oc);if(t&&!canTab(t[1])){el.style.display='none';return}const p=permForOnclick(oc);if(p&&(p==='__admin'||!can(p)))el.style.display='none'})}
+function showDash(){if(!canTab(state.tab)){const f=visibleTabs()[0];state.tab=f?f[0]:'jobs';const ft=tabs.find(x=>x[0]===state.tab);if($('panelTitle')&&ft)$('panelTitle').textContent=ft[2]}document.body.classList.toggle('is-helper',!!state.isHelper);document.body.classList.add('authed');$('loginView').classList.add('hide');$('dashView').classList.remove('hide');$('mobileTabs').classList.remove('hide');renderTop();renderTabs();pruneHero();loadAll()}
+async function login(e){e.preventDefault();$('loginError').innerHTML='';$('loginBtn').disabled=true;$('loginBtn').innerHTML='<span class="spinner"></span>';try{const email=adminToEmail($('adminLogin').value),password=$('pass').value;const r=await sb.auth.signInWithPassword({email,password});if(r.error)throw r.error;state.user=r.data.user;await loadManager();if(!state.manager){await sb.auth.signOut();throw new Error('الحساب ده مش مدير ولا مساعد عنده صلاحيات. لو انت مساعد، اطلب من الأدمن يحددلك الصلاحيات.')}showDash();toast('تم الدخول')}catch(err){showError('loginError',friendly(err))}finally{$('loginBtn').disabled=false;$('loginBtn').textContent='دخول لوحة التحكم'}}
+async function loadManager(){if(!state.user)return;const r=await sb.from('managers').select('*').eq('user_id',state.user.id).eq('is_active',true).maybeSingle();if(r.error)throw r.error;state.manager=r.data;state.isHelper=false;state.perms=[];
+  if(!state.manager){try{const h=await sb.rpc('my_helper_profile');const d=h.data;if(!h.error&&d&&Array.isArray(d.permissions)&&d.permissions.length){state.manager={full_name:d.full_name||'مساعد',is_helper:true};state.isHelper=true;state.perms=d.permissions;state.helperNote=d.note||''}}catch(e){}}}
+async function logout(){await sb.auth.signOut();state.user=null;state.manager=null;state.isHelper=false;state.perms=[];document.body.classList.remove('is-helper');showLogin();toast('تم الخروج')}
+function setTab(t){if(!canTab(t)){toast('القسم ده مش ضمن صلاحياتك','error');return}state.tab=t;state.filterPending=false;state.filterNoProof=false;$('search').value='';const found=tabs.find(x=>x[0]===t);$('panelTitle').textContent=found?found[2]:'';renderTabs();loadRows()}
 
 /* ===== Password-reset alerts for the admin =====
    Polls every 30s while the panel is open (also in a background tab):
@@ -850,6 +888,73 @@ async function checkPwRequests(silent){
 setInterval(()=>checkPwRequests(false),30000);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkPwRequests(false)});
 
+/* ===================== HELPER PERMISSIONS (v74) ===================== */
+const PERMS=[
+  ['verify','🪪','مراجعة التوثيق','قبول ورفض طلبات التوثيق وتذكير الأعضاء'],
+  ['members','👥','إدارة الأعضاء','إظهار/إخفاء الصيادلة والصيدليات وحذف الصور'],
+  ['jobs','💼','الوظايف','إيقاف وتشغيل وحذف الوظايف'],
+  ['sales','🏪','إعلانات البيع','إيقاف وتشغيل وحذف إعلانات البيع'],
+  ['otp','🔑','أكواد الباسورد','يشوف طلبات الأكواد ويبعتها للأعضاء'],
+  ['resets','🔄','طلبات الاستعادة','قبول ورفض طلبات استعادة الحساب'],
+  ['notify','🔔','الإشعارات','يبعت إشعارات للأعضاء'],
+  ['moderation','🛡️','الحظر','حظر وفك حظر الأرقام وتغيير باسورد عضو'],
+  ['delete_accounts','🗑️','حذف الحسابات','حذف الحسابات نهائيًا (وحذف + حظر)'],
+  ['contacts','📞','أرقام التواصل','تعديل أرقام التواصل اللي على الموقع']
+];
+const TAB_PERMS={jobs:['jobs'],pharmacies:['verify','members'],pharmacists:['verify','members','delete_accounts'],sales:['sales'],helpers:[],moderation:['moderation'],otps:['otp'],resets:['resets'],notifications:['notify'],contacts:['contacts']};
+function can(p){return !state.isHelper||(state.perms||[]).includes(p)}
+function canTab(t){if(!state.isHelper)return true;const need=TAB_PERMS[t];return !!need&&need.some(can)}
+const FN_PERMS={verifyPharmacist:'verify',rejectVerification:'verify',sendRejectFromModal:'verify',remindUserToUploadProof:'verify',verifyPharmacy:'verify',
+  togglePharmacist:'members',togglePharmacy:'members',clearPhoto:'members',toggleJob:'jobs',toggleSale:'sales',
+  deleteAccount:'delete_accounts',deleteAccountAndBlock:'delete_accounts',toggleHelper:'__admin',editHelperNote:'__admin',notifyHelpers:'__admin',openHelperPerms:'__admin',
+  issueOtp:'otp',issueOtpByPhone:'otp',approveReset:'resets',rejectReset:'resets',sendNotifByPhone:'notify',sendBroadcast:'notify',
+  adminBlockPhone:'moderation',adminUnblockPhone:'moderation',adminUnblockExisting:'moderation',adminResetPassword:'moderation',changeMyAdminPassword:'__admin',
+  addContactNumber:'contacts',toggleContactActive:'contacts',editContactNumber:'contacts',jumpToPendingVerifications:'verify',jumpToNoProof:'verify'};
+const DEL_PERMS={jobs:'jobs',pharmacy_sales:'sales',notifications:'notify',contact_numbers:'contacts',otp_codes:'otp',blocked_phones:'moderation',pharmacists:'delete_accounts',pharmacies:'delete_accounts'};
+function permForOnclick(oc){
+  const m=/^\s*(?:event\.stopPropagation\(\);\s*)?([a-zA-Z]+)\(/.exec(oc||'');if(!m)return null;
+  if(m[1]==='deleteRow'){const t=/deleteRow\(\s*event\s*,\s*'([a-z_]+)'/.exec(oc);return t?(DEL_PERMS[t[1]]||'__admin'):'__admin'}
+  return FN_PERMS[m[1]]||null;
+}
+function pruneForHelper(root){
+  if(!state.isHelper||!root)return;
+  root.querySelectorAll('[onclick]').forEach(el=>{const p=permForOnclick(el.getAttribute('onclick'));if(p&&(p==='__admin'||!can(p)))el.remove()});
+  root.querySelectorAll('details.tool-collapse').forEach(d=>{if(!d.querySelector('[onclick]'))d.remove()});
+}
+function rpcAs(fn,args){return state.isHelper?sb.rpc('helper_exec',{p_fn:fn,p_args:args||{}}):sb.rpc(fn,args)}
+
+function openHelperPerms(id){
+  const x=(state.rows||[]).find(r=>r.id===id);if(!x)return;
+  const cur=x.helper_permissions||[];
+  const m=$('permModal');
+  m.querySelector('.perm-who').textContent=x.full_name||'';
+  $('permNote').value=x.helper_note||'';
+  $('permList').innerHTML=PERMS.map(p=>`<label class="perm-item"><input type="checkbox" value="${p[0]}" ${cur.includes(p[0])?'checked':''}><span class="perm-ic">${p[1]}</span><span class="perm-tx"><b>${p[2]}</b><small>${p[3]}</small></span></label>`).join('');
+  m.dataset.id=id;m.classList.add('show');
+}
+function closePermModal(){$('permModal').classList.remove('show')}
+async function saveHelperPerms(e){
+  const m=$('permModal'),id=m.dataset.id,btn=e.currentTarget,old=btn.textContent;
+  const perms=[...m.querySelectorAll('#permList input:checked')].map(i=>i.value);
+  btn.disabled=true;btn.textContent='جارِ...';
+  try{const r=await sb.rpc('admin_set_helper',{p_pharmacist_id:id,p_is_helper:true,p_note:$('permNote').value.trim()||null,p_permissions:perms});if(r.error)throw r.error;
+    toast(perms.length?'✅ اتحفظت الصلاحيات ('+perms.length+')':'اتحفظ — من غير صلاحيات المساعد مش هيقدر يدخل اللوحة');closePermModal();await loadRows()}
+  catch(err){toast(friendly(err)+(/admin_set_helper|schema cache/.test(String(err&&err.message))?' - شغّل SQL v74':''),'error')}
+  finally{btn.disabled=false;btn.textContent=old}
+}
+const ACT_L={update:'عدّل',delete:'حذف',insert:'بعت',admin_issue_reset_code:'بعت كود باسورد',admin_issue_reset_code_by_phone:'بعت كود باسورد لرقم',admin_approve_password_reset:'قبل طلب استعادة',admin_reject_password_reset:'رفض طلب استعادة',admin_block_phone:'حظر رقم',admin_unblock_phone:'فك حظر رقم',admin_reset_password_by_phone:'غيّر باسورد عضو',admin_delete_account:'حذف حساب',admin_delete_account_and_block:'حذف وحظر حساب'};
+const ACT_T={pharmacists:'صيدلي',pharmacies:'صيدلية',jobs:'وظيفة',pharmacy_sales:'إعلان بيع',notifications:'إشعار',contact_numbers:'رقم تواصل',otp_codes:'طلب كود'};
+async function loadHelperActivity(){
+  const box=$('helperActivity');if(!box)return;
+  const r=await sb.from('helper_activity').select('*').order('created_at',{ascending:false}).limit(60);
+  if(r.error){box.innerHTML='<div class="empty">'+(/helper_activity|schema cache/.test(r.error.message)?'سجل النشاط محتاج تشغيل SQL v74':esc(friendly(r.error)))+'</div>';return}
+  const rows=r.data||[];
+  box.innerHTML=rows.length?rows.map(a=>{const d=a.details||{};let what='';
+    if(a.action==='update'){what=Object.keys(d).map(k=>k==='is_verified'?(d[k][1]?'✅ وثّقه':'❌ رفض/ألغى التوثيق'):(k==='is_active'||k==='looking_for_work')?(d[k][1]?'أظهره':'أخفاه'):k==='avatar_url'?'شال الصورة':'').filter(Boolean).join('، ')}
+    else what=esc(d.title||d.name||d.whatsapp||d.target_phone||d.p_whatsapp||'');
+    return `<div class="act-row"><b>${esc(a.actor_name||'مساعد')}</b><span>${ACT_L[a.action]||esc(a.action)} ${ACT_T[a.target_table]||''}</span>${what?`<i>${what}</i>`:''}<small>${ago(a.created_at)}</small></div>`}).join(''):'<div class="empty">لسه مفيش نشاط للمساعدين</div>';
+}
+
 async function loadAll(){await Promise.all([loadStats(),loadRows(),checkPwRequests(true)])}
 async function safeCount(table,filter){try{let q=sb.from(table).select('id',{count:'exact',head:true});if(filter)q=filter(q);const r=await q;return r.error?0:(r.count??0)}catch(e){return 0}}
 async function loadStats(){const [j,p,s,l,pv,np]=await Promise.all([safeCount('jobs'),safeCount('pharmacies'),safeCount('pharmacists'),safeCount('pharmacy_sales'),safeCount('pharmacists',q=>q.eq('verification_status','pending').eq('is_verified',false)),safeCount('pharmacists',q=>q.is('verification_card_url',null).eq('is_verified',false))]);$('sJobs').textContent=j;$('sPharmacies').textContent=p;$('sPharmacists').textContent=s;$('sSales').textContent=l;$('sPending').textContent=pv;$('sNoProof').textContent=np}
@@ -861,7 +966,7 @@ async function loadRows(){state.loading=true;$('rows').innerHTML='<div class="lo
   // Columns for pharmacist lists — EXCLUDES heavy JSONB (cv_data, meal_plan, habits_data)
   // so we don't send megabytes of base64 photos over the wire. cv_data has a summary
   // flag we still surface via `cv_visible` and a boolean check `cv_updated_at`.
-  const pharmCols = 'id,user_id,full_name,whatsapp,city,governorate,years_experience,license_number,bio,avatar_url,is_verified,verification_status,verification_card_url,looking_for_work,available_manager_registration,available_owner_registration,available_for_training,available_shifts,cv_link,cv_visible,cv_updated_at,is_helper,helper_note,created_at,updated_at';
+  const pharmCols = 'id,user_id,full_name,whatsapp,city,governorate,years_experience,license_number,bio,avatar_url,is_verified,verification_status,verification_card_url,looking_for_work,available_manager_registration,available_owner_registration,available_for_training,available_shifts,cv_link,cv_visible,cv_updated_at,is_helper,helper_note,helper_permissions,created_at,updated_at';
   if(state.tab==='jobs')r=await sb.from('jobs').select('*,pharmacies(name,whatsapp)').order('created_at',{ascending:false}).limit(400);
   if(state.tab==='pharmacies')r=await sb.from('pharmacies').select('*').order('created_at',{ascending:false}).limit(400);
   if(state.tab==='pharmacists')r=await sb.from('pharmacists').select(pharmCols).order('created_at',{ascending:false}).limit(400);
@@ -874,7 +979,8 @@ async function loadRows(){state.loading=true;$('rows').innerHTML='<div class="lo
   if(state.tab==='contacts')r=await sb.from('contact_numbers').select('*').order('display_order',{ascending:true}).order('created_at',{ascending:true}).limit(50);
   if(r?.error){if(isMissingTable(r.error)){state.rows=[];renderRows();return}throw r.error}state.rows=r?.data||[];renderRows()}catch(err){$('rows').innerHTML='<div class="empty">'+esc(friendly(err))+'</div>'}finally{state.loading=false}}
 function filteredRows(){let rows=state.rows;if(state.tab==='pharmacists'){if(state.filterPending){rows=rows.filter(x=>x.verification_status==='pending'&&x.is_verified!==true)}else if(state.filterNoProof){rows=rows.filter(x=>!x.verification_card_url&&x.is_verified!==true)}}const q=$('search').value.trim().toLowerCase();if(!q)return rows;return rows.filter(x=>JSON.stringify(x).toLowerCase().includes(q))}
-function renderRows(){const rows=filteredRows();const pFilterBtn=$('pendingFilterBtn');const npFilterBtn=$('noProofFilterBtn');if(pFilterBtn){pFilterBtn.classList.toggle('hide',state.tab!=='pharmacists');pFilterBtn.classList.toggle('is-active',state.filterPending===true)}if(npFilterBtn){npFilterBtn.classList.toggle('hide',state.tab!=='pharmacists');npFilterBtn.classList.toggle('is-active',state.filterNoProof===true)}if(state.tab==='helpers'){renderHelpers(rows);return}if(state.tab==='moderation'){renderModeration(rows);return}if(state.tab==='otps'){renderOtps(rows);return}if(state.tab==='resets'){renderResets(rows);return}if(state.tab==='notifications'){renderNotifications(rows);return}if(state.tab==='contacts'){renderContacts(rows);return}if(!rows.length){let msg='لا توجد بيانات';if(state.filterPending)msg='مفيش طلبات توثيق معلقة حاليًا 🎉';else if(state.filterNoProof)msg='مفيش حسابات قديمة بدون إثبات 🎉';$('rows').innerHTML='<div class="empty">'+msg+'</div>';return}let html='';if(state.tab==='jobs')html=rows.map(jobRow).join('');if(state.tab==='pharmacies')html=rows.map(pharmacyRow).join('');if(state.tab==='pharmacists')html=rows.map(pharmacistRow).join('');if(state.tab==='sales')html=rows.map(saleRow).join('');$('rows').innerHTML=html}
+function renderRows(){renderRowsCore();pruneForHelper($('rows'));if(state.tab==='helpers')loadHelperActivity()}
+function renderRowsCore(){const rows=filteredRows();const pFilterBtn=$('pendingFilterBtn');const npFilterBtn=$('noProofFilterBtn');if(pFilterBtn){pFilterBtn.classList.toggle('hide',state.tab!=='pharmacists');pFilterBtn.classList.toggle('is-active',state.filterPending===true)}if(npFilterBtn){npFilterBtn.classList.toggle('hide',state.tab!=='pharmacists');npFilterBtn.classList.toggle('is-active',state.filterNoProof===true)}if(state.tab==='helpers'){renderHelpers(rows);return}if(state.tab==='moderation'){renderModeration(rows);return}if(state.tab==='otps'){renderOtps(rows);return}if(state.tab==='resets'){renderResets(rows);return}if(state.tab==='notifications'){renderNotifications(rows);return}if(state.tab==='contacts'){renderContacts(rows);return}if(!rows.length){let msg='لا توجد بيانات';if(state.filterPending)msg='مفيش طلبات توثيق معلقة حاليًا 🎉';else if(state.filterNoProof)msg='مفيش حسابات قديمة بدون إثبات 🎉';$('rows').innerHTML='<div class="empty">'+msg+'</div>';return}let html='';if(state.tab==='jobs')html=rows.map(jobRow).join('');if(state.tab==='pharmacies')html=rows.map(pharmacyRow).join('');if(state.tab==='pharmacists')html=rows.map(pharmacistRow).join('');if(state.tab==='sales')html=rows.map(saleRow).join('');$('rows').innerHTML=html}
 function jobRow(x){return '<div class="row"><div class="row-main"><div><h4 class="title">'+esc(x.title)+'</h4><div class="meta"><span class="chip blue">'+esc(x.pharmacies?.name||'صيدلية')+'</span><span class="chip">'+g(x.governorate)+(x.city?' · '+esc(x.city):'')+'</span><span class="chip '+(x.is_active?'green':'red')+'">'+(x.is_active?'نشط':'متوقف')+'</span><span class="chip">👁 '+(x.view_count||0)+'</span><span class="chip">'+ago(x.created_at)+'</span></div></div><div class="actions"><button class="btn small '+(x.is_active?'danger':'ok')+'" onclick="toggleJob(event,\''+x.id+'\','+(!x.is_active)+')">'+(x.is_active?'إيقاف':'تشغيل')+'</button><button class="btn small" onclick="openItem(\'job\',\''+x.id+'\')">عرض</button><button class="btn small danger" onclick="deleteRow(event,\'jobs\',\''+x.id+'\')">حذف</button></div></div>'+(x.description?'<p class="desc">'+esc(x.description)+'</p>':'')+'</div>'}
 function pharmacyDetailPanel(x){
   return `<details class="detail-panel"><summary>👁 كل تفاصيل الصيدلية</summary>
@@ -1041,7 +1147,7 @@ function renderHelpers(rows){
       </div>
     </details>
     <div class="helper-note">
-      <b>💡 نظام المساعدين:</b> علّم أي عضو موثوق كمساعد للفريق. استخدم "نبذة الدور" عشان تحدد المهمة، وابعتلهم إشعار جماعي من هنا لما تحتاج مساعدة.
+      <b>💡 إزاي المساعد يشتغل:</b> دوس «🔐 الصلاحيات» واختار الحاجات اللي المساعد يقدر يعملها. بعدها يدخل <b>admin.careerk.net</b> برقم الواتساب والباسورد بتوعه على كاريراك، ويلاقي قدامه الأقسام دي بس. كل حاجة يعملها بتتسجل باسمه تحت في «سجل النشاط».<br>إدارة المساعدين وباسورد الأدمن والحذف من غير صلاحية «حذف الحسابات» بيفضلوا ليك انت بس.
     </div>
     <details class="tool-collapse">
       <summary>📢 ابعت مهمة/إشعار لكل المساعدين</summary>
@@ -1053,7 +1159,9 @@ function renderHelpers(rows){
       </div>
     </details>
     <div class="blocked-list-title">المساعدين النشطين (${rows.length})</div>
-    ${helperList}`;
+    ${helperList}
+    <div class="blocked-list-title">📜 سجل نشاط المساعدين</div>
+    <div id="helperActivity" class="act-list"><div class="loader"><span class="spinner"></span>جاري التحميل...</div></div>`;
 }
 function helperRow(x){
   return `<div class="row">
@@ -1068,11 +1176,12 @@ function helperRow(x){
             <span class="chip blue">${esc(x.whatsapp||'بدون واتساب')}</span>
             ${x.is_verified?'<span class="chip verified">✅ موثق</span>':''}
           </div>
-          ${x.helper_note?`<p class="desc">🎯 <b>الدور:</b> ${esc(x.helper_note)}</p>`:'<p class="desc" style="color:#9b6500;background:#fff8e6">⚠️ ما فيش نبذة دور محددة. اضغط "تعديل الدور" وحدد المهمة.</p>'}
+          ${x.helper_note?`<p class="desc">🎯 <b>الدور:</b> ${esc(x.helper_note)}</p>`:''}
+          <div class="perm-chips">${(x.helper_permissions||[]).length?(x.helper_permissions||[]).map(k=>{const p=PERMS.find(z=>z[0]===k);return p?`<span class="chip perm-chip">${p[1]} ${p[2]}</span>`:''}).join(''):'<span class="chip" style="background:#fff8e6;color:#9b6500;border-color:#f0d99a">⚠️ مالوش صلاحيات — مش هيقدر يدخل اللوحة. دوس «🔐 الصلاحيات»</span>'}</div>
         </div>
       </div>
       <div class="actions">
-        <button class="btn small primary" onclick="editHelperNote(event,'${x.id}','${esc((x.helper_note||'').replace(/'/g,"\\'"))}')">✏️ تعديل الدور</button>
+        <button class="btn small primary" onclick="openHelperPerms('${x.id}')">🔐 الصلاحيات</button>
         <a class="btn small" target="_blank" href="${waLink(x.whatsapp, null, x.full_name)}">💬 واتساب</a>
         <button class="btn small danger" onclick="toggleHelper(event,'${x.id}',false,'${esc(x.full_name)}')">❌ إزالة</button>
       </div>
@@ -1083,10 +1192,10 @@ async function toggleHelper(e,id,val,name){
   if (val){
     const note = prompt(`اجعل ${name} مساعد للفريق.\n\nنبذة سريعة عن الدور/المهام (يظهر في تبويب المساعدين):`, '');
     if (note === null) return;
-    await update(e.currentTarget,'pharmacists',id,{is_helper:true,helper_note:note.trim()||null},`تم إضافة ${name} كمساعد`);
+    await update(e.currentTarget,'pharmacists',id,{is_helper:true,helper_note:note.trim()||null},`تم إضافة ${name} كمساعد — حدد صلاحياته من تبويب «المساعدين»`);
   } else {
     if (!confirm(`إزالة ${name} من قائمة المساعدين؟`)) return;
-    await update(e.currentTarget,'pharmacists',id,{is_helper:false,helper_note:null},`تم إزالة ${name} من المساعدين`);
+    await update(e.currentTarget,'pharmacists',id,{is_helper:false,helper_note:null,helper_permissions:[]},`تم إزالة ${name} من المساعدين`);
   }
 }
 async function editHelperNote(e,id,current){
@@ -1253,8 +1362,8 @@ async function rejectVerification(e,id,userId){
 }
 async function update(btn,table,id,payload,msg){const old=btn?.textContent;if(btn){btn.disabled=true;btn.textContent='جارِ...'}try{const r=await sb.from(table).update(payload).eq('id',id).select('id').maybeSingle();if(r.error)throw r.error;if(!r.data){toast('لم يتم التحديث. راجع صلاحيات المدير في Supabase.','error');return}toast(msg);await loadAll()}catch(err){toast(friendly(err),'error')}finally{if(btn){btn.disabled=false;btn.textContent=old}}}
 async function deleteRow(e,table,id){if(!confirm('متأكد من الحذف؟'))return;const btn=e.currentTarget,old=btn.textContent;btn.disabled=true;btn.textContent='جارِ...';try{const r=await sb.from(table).delete().eq('id',id).select('id').maybeSingle();if(r.error)throw r.error;if(!r.data){toast('لم يتم الحذف. راجع صلاحيات المدير في Supabase.','error');return}toast('تم الحذف');await loadAll()}catch(err){toast(friendly(err),'error')}finally{btn.disabled=false;btn.textContent=old}}
-async function deleteAccount(e,userId){if(!userId){toast('لا يوجد حساب دخول مربوط بهذا الإعلان','error');return}if(!confirm('حذف نهائي؟\n\nهيتم حذف حساب الدخول والبروفايل والإعلانات المرتبطة به، وبعدها يقدر يسجل من جديد بنفس الرقم.'))return;const btn=e.currentTarget,old=btn.textContent;btn.disabled=true;btn.textContent='جارِ...';try{const r=await sb.rpc('admin_delete_account',{target_user_id:userId});if(r.error)throw r.error;toast('تم حذف الحساب نهائيًا، ويمكن التسجيل من جديد');await loadAll()}catch(err){toast(friendly(err)+' - شغّل SQL v34 لو الزر أول مرة يستخدم','error')}finally{btn.disabled=false;btn.textContent=old}}
-async function deleteAccountAndBlock(e,userId){if(!userId){toast('لا يوجد حساب دخول مربوط بهذا الإعلان','error');return}const reason=prompt('سبب الحظر؟','مخالفة قواعد المنصة')||'مخالفة قواعد المنصة';if(!confirm('حذف وحظر؟\n\nهيتم حذف الحساب ومنع نفس الرقم من التسجيل أو الدخول لحد ما تفك الحظر.'))return;const btn=e.currentTarget,old=btn.textContent;btn.disabled=true;btn.textContent='جارِ...';try{const r=await sb.rpc('admin_delete_account_and_block',{target_user_id:userId,reason_text:reason});if(r.error)throw r.error;toast('تم حذف الحساب وحظر الرقم');await loadAll()}catch(err){toast(friendly(err)+' - شغّل SQL v34 لو الزر أول مرة يستخدم','error')}finally{btn.disabled=false;btn.textContent=old}}
+async function deleteAccount(e,userId){if(!userId){toast('لا يوجد حساب دخول مربوط بهذا الإعلان','error');return}if(!confirm('حذف نهائي؟\n\nهيتم حذف حساب الدخول والبروفايل والإعلانات المرتبطة به، وبعدها يقدر يسجل من جديد بنفس الرقم.'))return;const btn=e.currentTarget,old=btn.textContent;btn.disabled=true;btn.textContent='جارِ...';try{const r=await rpcAs('admin_delete_account',{target_user_id:userId});if(r.error)throw r.error;toast('تم حذف الحساب نهائيًا، ويمكن التسجيل من جديد');await loadAll()}catch(err){toast(friendly(err)+' - شغّل SQL v34 لو الزر أول مرة يستخدم','error')}finally{btn.disabled=false;btn.textContent=old}}
+async function deleteAccountAndBlock(e,userId){if(!userId){toast('لا يوجد حساب دخول مربوط بهذا الإعلان','error');return}const reason=prompt('سبب الحظر؟','مخالفة قواعد المنصة')||'مخالفة قواعد المنصة';if(!confirm('حذف وحظر؟\n\nهيتم حذف الحساب ومنع نفس الرقم من التسجيل أو الدخول لحد ما تفك الحظر.'))return;const btn=e.currentTarget,old=btn.textContent;btn.disabled=true;btn.textContent='جارِ...';try{const r=await rpcAs('admin_delete_account_and_block',{target_user_id:userId,reason_text:reason});if(r.error)throw r.error;toast('تم حذف الحساب وحظر الرقم');await loadAll()}catch(err){toast(friendly(err)+' - شغّل SQL v34 لو الزر أول مرة يستخدم','error')}finally{btn.disabled=false;btn.textContent=old}}
 function renderModeration(rows){
   const blocked = rows.filter(x=>x.is_active!==false).map(blockedRow).join('') || '<div class="empty">لا توجد أرقام محظورة</div>';
   $('rows').innerHTML = `<details class="tool-collapse"><summary>🚫 حظر أو فك حظر رقم</summary><div>
@@ -1346,7 +1455,7 @@ async function issueOtp(e, id){
   const win = window.open('', '_blank'); // open now so the popup isn't blocked
   btn.disabled = true; btn.textContent = 'جارِ...';
   try {
-    const r = await sb.rpc('admin_issue_reset_code', { p_otp_id: id });
+    const r = await rpcAs('admin_issue_reset_code', { p_otp_id: id });
     if (r.error) throw r.error;
     if (!r.data || !r.data.ok) throw new Error(r.data && r.data.error === 'not_admin' ? 'الحساب ده مش مدير' : 'الطلب ده اتلغى أو اتستخدم');
     otpOpenWhatsApp(win, r.data);
@@ -1361,7 +1470,7 @@ async function issueOtpByPhone(e){
   const win = window.open('', '_blank');
   btn.disabled = true; btn.textContent = 'جارِ...';
   try {
-    const r = await sb.rpc('admin_issue_reset_code_by_phone', { p_whatsapp: phone });
+    const r = await rpcAs('admin_issue_reset_code_by_phone', { p_whatsapp: phone });
     if (r.error) throw r.error;
     if (!r.data || !r.data.ok) throw new Error(r.data && r.data.error === 'phone_not_found' ? 'الرقم ده مش متسجّل في كاريرك' : 'حصلت مشكلة');
     otpOpenWhatsApp(win, r.data);
@@ -1405,14 +1514,14 @@ function resetRow(x){
 async function approveReset(e,id){
   if(!confirm('قبول الطلب؟\n\nهيتم تغيير كلمة السر للجديدة وإشعار المستخدم في الجرس.'))return;
   const btn=e.currentTarget,old=btn.textContent;btn.disabled=true;btn.textContent='جارِ...';
-  try{const r=await sb.rpc('admin_approve_password_reset',{request_id:id});if(r.error)throw r.error;toast('تم قبول الطلب وتغيير كلمة السر');await loadAll()}
+  try{const r=await rpcAs('admin_approve_password_reset',{request_id:id});if(r.error)throw r.error;toast('تم قبول الطلب وتغيير كلمة السر');await loadAll()}
   catch(err){toast(friendly(err),'error')}
   finally{btn.disabled=false;btn.textContent=old}
 }
 async function rejectReset(e,id){
   const reason=prompt('سبب الرفض؟','بيانات غير مطابقة')||'بيانات غير مطابقة';
   const btn=e.currentTarget,old=btn.textContent;btn.disabled=true;btn.textContent='جارِ...';
-  try{const r=await sb.rpc('admin_reject_password_reset',{request_id:id,reason});if(r.error)throw r.error;toast('تم رفض الطلب');await loadAll()}
+  try{const r=await rpcAs('admin_reject_password_reset',{request_id:id,reason});if(r.error)throw r.error;toast('تم رفض الطلب');await loadAll()}
   catch(err){toast(friendly(err),'error')}
   finally{btn.disabled=false;btn.textContent=old}
 }
@@ -1592,11 +1701,11 @@ async function editContactNumber(e,id,phone,label,msg,order){
   }catch(err){toast(friendly(err),'error')}
   finally{btn.disabled=false;btn.textContent=old}
 }
-async function adminBlockPhone(e){const phone=($('banPhone')?.value||'').trim();const reason=($('banReason')?.value||'').trim();if(!phone){toast('اكتب رقم الواتساب','error');return}const btn=e.currentTarget,old=btn.textContent;btn.disabled=true;btn.textContent='جارِ...';try{const r=await sb.rpc('admin_block_phone',{target_phone:phone,reason_text:reason||'حظر من الإدارة'});if(r.error)throw r.error;toast('تم حظر الرقم');await loadRows()}catch(err){toast(friendly(err)+' - شغّل SQL v34','error')}finally{btn.disabled=false;btn.textContent=old}}
+async function adminBlockPhone(e){const phone=($('banPhone')?.value||'').trim();const reason=($('banReason')?.value||'').trim();if(!phone){toast('اكتب رقم الواتساب','error');return}const btn=e.currentTarget,old=btn.textContent;btn.disabled=true;btn.textContent='جارِ...';try{const r=await rpcAs('admin_block_phone',{target_phone:phone,reason_text:reason||'حظر من الإدارة'});if(r.error)throw r.error;toast('تم حظر الرقم');await loadRows()}catch(err){toast(friendly(err)+' - شغّل SQL v34','error')}finally{btn.disabled=false;btn.textContent=old}}
 async function adminUnblockPhone(e){const phone=($('banPhone')?.value||'').trim();if(!phone){toast('اكتب رقم الواتساب','error');return}await adminUnblockCore(e.currentTarget,phone)}
 async function adminUnblockExisting(e,phone){await adminUnblockCore(e.currentTarget,phone)}
-async function adminUnblockCore(btn,phone){const old=btn.textContent;btn.disabled=true;btn.textContent='جارِ...';try{const r=await sb.rpc('admin_unblock_phone',{target_phone:phone});if(r.error)throw r.error;toast('تم فك الحظر');await loadRows()}catch(err){toast(friendly(err)+' - شغّل SQL v34','error')}finally{btn.disabled=false;btn.textContent=old}}
-async function adminResetPassword(e){const phone=($('resetPhone')?.value||'').trim();const pass=($('resetPass')?.value||'').trim();if(!phone||!pass){toast('اكتب الرقم والباسورد الجديد','error');return}if(pass.length<6){toast('الباسورد لازم ٦ حروف/أرقام على الأقل','error');return}const btn=e.currentTarget,old=btn.textContent;btn.disabled=true;btn.textContent='جارِ...';try{const r=await sb.rpc('admin_reset_password_by_phone',{target_phone:phone,new_password:pass});if(r.error)throw r.error;toast('تم تغيير الباسورد ✅ — ابعتها للعضو');$('resetPass').value=''}catch(err){toast(friendly(err),'error')}finally{btn.disabled=false;btn.textContent=old}}
+async function adminUnblockCore(btn,phone){const old=btn.textContent;btn.disabled=true;btn.textContent='جارِ...';try{const r=await rpcAs('admin_unblock_phone',{target_phone:phone});if(r.error)throw r.error;toast('تم فك الحظر');await loadRows()}catch(err){toast(friendly(err)+' - شغّل SQL v34','error')}finally{btn.disabled=false;btn.textContent=old}}
+async function adminResetPassword(e){const phone=($('resetPhone')?.value||'').trim();const pass=($('resetPass')?.value||'').trim();if(!phone||!pass){toast('اكتب الرقم والباسورد الجديد','error');return}if(pass.length<6){toast('الباسورد لازم ٦ حروف/أرقام على الأقل','error');return}const btn=e.currentTarget,old=btn.textContent;btn.disabled=true;btn.textContent='جارِ...';try{const r=await rpcAs('admin_reset_password_by_phone',{target_phone:phone,new_password:pass});if(r.error)throw r.error;toast('تم تغيير الباسورد ✅ — ابعتها للعضو');$('resetPass').value=''}catch(err){toast(friendly(err),'error')}finally{btn.disabled=false;btn.textContent=old}}
 
 function openItem(type,id){const path=type==='job'?'https://careerk.net/#job-'+id:'https://careerk.net/#sale-'+id;window.open(path,'_blank')}
 
