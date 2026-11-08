@@ -972,6 +972,7 @@ async function loadRows(){state.loading=true;$('rows').innerHTML='<div class="lo
   if(state.tab==='pharmacists')r=await sb.from('pharmacists').select(pharmCols).order('created_at',{ascending:false}).limit(400);
   if(state.tab==='sales')r=await sb.from('pharmacy_sales').select('*,pharmacies(name,whatsapp)').order('created_at',{ascending:false}).limit(400);
   if(state.tab==='helpers')r=await sb.from('pharmacists').select(pharmCols).eq('is_helper',true).order('created_at',{ascending:false}).limit(200);
+  if((state.tab==='pharmacists'||state.tab==='helpers')&&r?.error&&/helper_permissions/.test(r.error.message||'')){const cols=pharmCols.replace(',helper_permissions','');r=state.tab==='helpers'?await sb.from('pharmacists').select(cols).eq('is_helper',true).order('created_at',{ascending:false}).limit(200):await sb.from('pharmacists').select(cols).order('created_at',{ascending:false}).limit(400)}
   if(state.tab==='moderation')r=await sb.from('blocked_phones').select('*').order('created_at',{ascending:false}).limit(300);
   if(state.tab==='otps')r=await sb.from('otp_codes').select('*').order('created_at',{ascending:false}).limit(100);
   if(state.tab==='resets')r=await sb.from('password_reset_requests').select('*').order('created_at',{ascending:false}).limit(200);
