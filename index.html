@@ -858,7 +858,7 @@ function beep(){
 }
 async function adminPhoneNotify(title,body){
   if(!('Notification' in window)||Notification.permission!=='granted')return;
-  const opts={body,icon:'./icon-192.png?v=61',badge:'./icon-192.png?v=61',tag:'careerk-admin-pw',renotify:true,dir:'rtl',lang:'ar',requireInteraction:true};
+  const opts={body,icon:'./icon-192.png?v=61',badge:'./icon-192.png?v=61',tag:'careerk-admin-pw',renotify:true,dir:'rtl',lang:'ar'};
   try{const reg=await navigator.serviceWorker?.getRegistration();if(reg)return reg.showNotification(title,opts);new Notification(title,opts)}catch(e){}
 }
 function renderBellState(){
@@ -872,6 +872,13 @@ async function enableAdminAlerts(){
   try{const r=await Notification.requestPermission();if(r==='granted'){adminPhoneNotify('🔔 التنبيهات اشتغلت','أي حد يطلب استعادة الباسورد هيوصلك إشعار هنا.');toast('تمام 🔔')}else toast('الإشعارات مقفولة من إعدادات المتصفح')}catch(e){}
   renderBellState();
 }
+// Clear the phone notification + the "1" on the app icon once the admin has the panel open.
+async function clearPwNotifications(){
+  try{const reg=await navigator.serviceWorker?.getRegistration();if(reg&&reg.getNotifications){(await reg.getNotifications()).forEach(n=>n.close())}}catch(e){}
+}
+function syncAppBadge(total){
+  try{if(total>0&&navigator.setAppBadge)navigator.setAppBadge(total);else if(navigator.clearAppBadge)navigator.clearAppBadge()}catch(e){}
+}
 async function checkPwRequests(silent){
   if(!state.manager)return;
   let c;try{c=await countPendingPw()}catch(e){return}
@@ -880,16 +887,19 @@ async function checkPwRequests(silent){
   if($('sPw'))$('sPw').textContent=total;
   const card=$('pwAlert');if(card)card.classList.toggle('hot',total>0);
   document.title=(total?'('+total+') ':'')+'CareerK Admin';
+  syncAppBadge(total);
+  if(!document.hidden||total===0)clearPwNotifications();
   renderTabs();
   if(!silent&&prev!=null&&total>prev){
     const n=total-prev;
     beep();
     toast('🔑 '+(n===1?'عضو جديد طلب':'في '+n+' أعضاء طلبوا')+' استعادة الباسورد');
-    adminPhoneNotify('🔑 طلب استعادة باسورد','فيه '+total+' عضو مستني الكود — افتح لوحة الأدمن وابعته على واتساب.');
+    if(document.hidden)adminPhoneNotify('🔑 طلب استعادة باسورد','فيه '+total+' عضو مستني الكود — افتح لوحة الأدمن وابعته على واتساب.');
     if(state.tab==='otps'||state.tab==='resets')loadRows();
   }
 }
 setInterval(()=>checkPwRequests(false),30000);
+clearPwNotifications();
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkPwRequests(false)});
 
 /* ===================== HELPER PERMISSIONS (v74) ===================== */
