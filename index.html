@@ -804,8 +804,12 @@ function normalizeWa(num){let n=String(num||'').replace(/\D/g,'');if(!n)return''
 // The admin should be logged into WhatsApp on the official 01205409238 line so
 // the message actually goes out from that number.
 function careerkMsg(name, purpose){
-  const first = String(name||'').trim().split(/\s+/)[0] || '';
-  const greet = first ? `أهلاً يا ${first} 👋` : 'أهلاً 👋';
+  // "دكتور" for everyone (members are pharmacists / pharmacy owners); skip an existing د./Dr prefix
+  const parts = String(name||'').trim().split(/\s+/).filter(Boolean);
+  while (parts.length && /^(د\.?|دكتور|دكتوره|دكتورة|dr\.?)$/i.test(parts[0])) parts.shift();
+  let first = parts[0] || '';
+  if (/^(صيدلية|صيدليه|صيدليات|pharmacy|pharmacies)$/i.test(first)) first = '';
+  const greet = first ? `أهلاً يا دكتور ${first} 👋` : 'أهلاً يا دكتور 👋';
   const sig = '— فريق CareerK · مجتمع الصيادلة والصيدليات في مصر';
   const body = purpose || 'معاك فريق CareerK، حابين نتواصل معاك بخصوص حسابك.';
   return `${greet}\n${body}\n\n${sig}`;
