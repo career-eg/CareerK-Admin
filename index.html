@@ -918,7 +918,7 @@ const PERMS=[
 const TAB_PERMS={jobs:['jobs'],pharmacies:['verify','members'],pharmacists:['verify','members','delete_accounts'],sales:['sales'],helpers:[],moderation:['moderation'],otps:['otp'],resets:['resets'],notifications:['notify'],contacts:['contacts']};
 function can(p){return !state.isHelper||(state.perms||[]).includes(p)}
 function canTab(t){if(!state.isHelper)return true;const need=TAB_PERMS[t];return !!need&&need.some(can)}
-const FN_PERMS={verifyPharmacist:'verify',rejectVerification:'verify',sendRejectFromModal:'verify',remindUserToUploadProof:'verify',verifyPharmacy:'verify',
+const FN_PERMS={verifyPharmacist:'verify',rejectVerification:'verify',askMoreProof:'verify',sendRejectFromModal:'verify',remindUserToUploadProof:'verify',verifyPharmacy:'verify',
   togglePharmacist:'members',togglePharmacy:'members',clearPhoto:'members',toggleJob:'jobs',toggleSale:'sales',
   deleteAccount:'delete_accounts',deleteAccountAndBlock:'delete_accounts',toggleHelper:'__admin',editHelperNote:'__admin',notifyHelpers:'__admin',openHelperPerms:'__admin',
   issueOtp:'otp',issueOtpByPhone:'otp',approveReset:'resets',rejectReset:'resets',sendNotifByPhone:'notify',sendBroadcast:'notify',
@@ -1113,6 +1113,7 @@ function pharmacistRow(x){
           : (x.is_verified!==true ? `<button class="btn small danger" onclick="remindUserToUploadProof(event,'${x.user_id||''}','${esc(x.full_name)}')">📣 ذكّره يرفع الإثبات</button>` : '')}
         <button class="btn small ${x.is_verified?'danger':'ok'}" onclick="verifyPharmacist(event,'${x.id}',${!x.is_verified},'${x.user_id||''}')">${x.is_verified?'إلغاء التوثيق':'✅ توثيق'}</button>
         ${x.verification_status==='pending'&&!x.is_verified?`<button class="btn small danger" onclick="rejectVerification(event,'${x.id}','${x.user_id||''}')">❌ رفض التوثيق</button>`:''}
+        ${!x.is_verified&&hasVerCard?`<button class="btn small" style="background:#eef4ff;border-color:#b9cdf5;color:#1d4fa3" onclick="askMoreProof(event,'${x.id}','${x.user_id||''}')">📩 اطلب إثبات المهنة</button>`:''}
         <button class="btn small" onclick="toggleHelper(event,'${x.id}',${!x.is_helper},'${esc(x.full_name)}')">${x.is_helper?'❌ إزالة كمساعد':'🤝 اجعله مساعد'}</button>
         ${x.avatar_url?`<button class="btn small" onclick="clearPhoto(event,'pharmacists','${x.id}')">حذف الأفتار</button>`:''}
         <a class="btn small" target="_blank" href="${waLink(x.whatsapp, null, x.full_name)}">💬 واتساب</a>
@@ -1283,6 +1284,18 @@ async function remindUserToUploadProof(e, userId, name){
 // Keep the tone kind but firm; users act on this in seconds.
 const REJECT_PRESETS = [
   {
+    icon: '🪪',
+    title: 'البطاقة وش بس — محتاجين الضهر',
+    ask: true,
+    body: 'استلمنا صورة وش البطاقة بس 👍 عشان نثبت المهنة محتاجين كمان صورة ضهر البطاقة (اللي مكتوب فيه المهنة: صيدلي)، أو صورة كارنيه نقابة الصيادلة.\n\nافتح «حسابي» ← «توثيق البروفايل» وارفع الصورة — وتقدر ترفع الوش والضهر مع بعض في نفس المرة.'
+  },
+  {
+    icon: '📄',
+    title: 'محتاجين مستند يثبت المهنة',
+    ask: true,
+    body: 'عشان نوثّق حسابك محتاجين مستند بيثبت إنك صيدلي/صيدلانية: كارنيه نقابة الصيادلة، أو كارنيه كلية الصيدلة، أو البطاقة الشخصية (الوش والضهر — الضهر اللي فيه المهنة).\n\nافتح «حسابي» ← «توثيق البروفايل» وارفع الصورة.'
+  },
+  {
     icon: '🔍',
     title: 'الصورة غير واضحة',
     body: 'الصورة اللي رفعتها مش واضحة كفاية. من فضلك ارفع صورة أوضح لكارنيه النقابة أو كارنيه الكلية أو البطاقة الشخصية، بحيث كل التفاصيل تبان.'
@@ -1364,16 +1377,36 @@ async function sendRejectFromModal(){
     const r = await sb.from('pharmacists').update(payload).eq('id', id).select('id').maybeSingle();
     if (r.error) throw r.error;
     if (!r.data){ toast('لم يتم التحديث. راجع صلاحيات المدير.', 'error'); return; }
-    await notifyUser(userId, 'تم رفض طلب التوثيق', body + '\n\nممكن ترفع صورة إثبات جديدة من "حسابي" في التطبيق.');
-    toast('تم رفض التوثيق وإرسال الإشعار');
+    const ask = $('rejectModal').dataset.ask === '1';
+    await notifyUser(userId, ask ? '📷 محتاجين صورة إثبات المهنة' : 'تم رفض طلب التوثيق', ask ? body : body + '\n\nممكن ترفع صورة إثبات جديدة من "حسابي" في التطبيق.');
+    toast(ask ? '📩 الطلب وصله في الإشعارات' : 'تم رفض التوثيق وإرسال الإشعار');
     closeRejectModal();
+    // Also offer to send the same text on WhatsApp (he may not open the site soon)
+    const row = (state.rows || []).find(x => x.id === id);
+    const wa = normalizeWa(row?.whatsapp);
+    if (wa && confirm('تبعتله نفس الرسالة على واتساب كمان؟')){
+      window.open('https://wa.me/' + wa + '?text=' + encodeURIComponent(careerkMsg(row.full_name, body + '\n\nhttps://careerk.net')), '_blank');
+    }
     await loadAll();
   } catch(err){ toast(friendly(err), 'error'); }
   finally { sendBtn.disabled = false; sendBtn.textContent = old; }
 }
 
 async function rejectVerification(e,id,userId){
+  setRejectMode(false);
   openRejectModal(e, id, userId);
+}
+// Ask the member for an extra proof image (e.g. back side of the ID) — friendlier wording than "رفض"
+function askMoreProof(e,id,userId){
+  setRejectMode(true);
+  openRejectModal(e, id, userId);
+  pickRejectPreset(0);
+}
+function setRejectMode(ask){
+  const m=$('rejectModal'); m.dataset.ask = ask ? '1' : '';
+  m.querySelector('.reject-modal-head h3').textContent = ask ? '📩 طلب صورة إثبات إضافية' : '❌ رفض طلب التوثيق';
+  $('rejectSendBtn').textContent = ask ? '📤 إرسال الطلب' : '📤 إرسال الرفض';
+  $('rejectSendBtn').className = 'btn ' + (ask ? 'primary' : 'danger');
 }
 async function update(btn,table,id,payload,msg){const old=btn?.textContent;if(btn){btn.disabled=true;btn.textContent='جارِ...'}try{const r=await sb.from(table).update(payload).eq('id',id).select('id').maybeSingle();if(r.error)throw r.error;if(!r.data){toast('لم يتم التحديث. راجع صلاحيات المدير في Supabase.','error');return}toast(msg);await loadAll()}catch(err){toast(friendly(err),'error')}finally{if(btn){btn.disabled=false;btn.textContent=old}}}
 async function deleteRow(e,table,id){if(!confirm('متأكد من الحذف؟'))return;const btn=e.currentTarget,old=btn.textContent;btn.disabled=true;btn.textContent='جارِ...';try{const r=await sb.from(table).delete().eq('id',id).select('id').maybeSingle();if(r.error)throw r.error;if(!r.data){toast('لم يتم الحذف. راجع صلاحيات المدير في Supabase.','error');return}toast('تم الحذف');await loadAll()}catch(err){toast(friendly(err),'error')}finally{btn.disabled=false;btn.textContent=old}}
