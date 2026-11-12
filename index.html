@@ -587,6 +587,8 @@ details.detail-panel{border-radius:14px;border-width:1px}
 .more-grid button{position:relative}
 .more-grid button i.tab-badge{position:absolute;top:8px;inset-inline-start:8px;width:auto;height:20px;min-width:20px;border-radius:99px;display:block;background:#c23b22;font:900 11px/20px Nunito,Tajawal,sans-serif;color:#fff}
 
+/* daily tips */
+.row-hidden-tip{opacity:.55}
 /* helper permissions */
 .perm-modal{position:fixed;inset:0;z-index:80;background:rgba(6,47,48,.45);display:none;align-items:flex-end;justify-content:center}
 .perm-modal.show{display:flex}
@@ -740,6 +742,16 @@ body.is-helper .dash-title span{color:#7ee2a8}
   </div>
 </section>
 <nav class="mobile-tabs" id="mobileTabs" aria-label="أقسام اللوحة"></nav>
+<div class="perm-modal" id="tipModal" onclick="if(event.target===this)closeTipModal()"><div class="perm-card">
+  <div class="more-grip"></div>
+  <h4>✏️ تعديل معلومة يوم <span class="tip-when"></span></h4>
+  <label class="label">العنوان</label><input class="input" id="tipTitle" maxlength="120">
+  <label class="label" style="margin-top:8px;display:block">المعلومة</label><textarea class="input" id="tipBody" rows="6" maxlength="700" style="resize:vertical"></textarea>
+  <label class="label" style="margin-top:8px;display:block">النوع</label><select class="input" id="tipCat"></select>
+  <label class="label" style="margin-top:8px;display:block">اسم المصدر</label><input class="input" id="tipSource" placeholder="مثال: NHS — Warfarin">
+  <label class="label" style="margin-top:8px;display:block">لينك المصدر</label><input class="input" id="tipUrl" dir="ltr" placeholder="https://...">
+  <div class="perm-actions"><button class="btn" type="button" onclick="closeTipModal()">إلغاء</button><button class="btn primary" type="button" onclick="saveTip(event)">حفظ</button></div>
+</div></div>
 <div class="perm-modal" id="permModal" onclick="if(event.target===this)closePermModal()"><div class="perm-card">
   <div class="more-grip"></div>
   <h4>🔐 صلاحيات <span class="perm-who"></span></h4>
@@ -784,7 +796,7 @@ body.is-helper .dash-title span{color:#7ee2a8}
 const SUPABASE_URL='https://wcdbtxvyjtsqdhigzdgi.supabase.co';
 const SUPABASE_ANON_KEY='sb_publishable_qspjh8HScIC9jjjyvnoGVA_06tT1jFl';
 const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
-const tabs=[['jobs','💼','الوظائف'],['pharmacies','🏥','الصيدليات'],['pharmacists','💊','الصيادلة'],['sales','🏪','صيدليات للبيع'],['helpers','🤝','المساعدين'],['moderation','🛡️','الحظر والباسورد'],['otps','🔑','استعادة الباسورد'],['resets','🔄','طلبات استعادة'],['notifications','🔔','الإشعارات'],['contacts','📞','أرقام التواصل']];
+const tabs=[['jobs','💼','الوظائف'],['pharmacies','🏥','الصيدليات'],['pharmacists','💊','الصيادلة'],['sales','🏪','صيدليات للبيع'],['helpers','🤝','المساعدين'],['moderation','🛡️','الحظر والباسورد'],['otps','🔑','استعادة الباسورد'],['resets','🔄','طلبات استعادة'],['notifications','🔔','الإشعارات'],['contacts','📞','أرقام التواصل'],['tips','💡','معلومة اليوم']];
 const govs={cairo:'القاهرة',giza:'الجيزة',alex:'الإسكندرية',qalyubia:'القليوبية',sharqia:'الشرقية',dakahlia:'الدقهلية',beheira:'البحيرة',kafr:'كفر الشيخ',gharbia:'الغربية',menoufia:'المنوفية',damietta:'دمياط',portsaid:'بورسعيد',ismailia:'الإسماعيلية',suez:'السويس',nsinai:'شمال سيناء',ssinai:'جنوب سيناء',redsea:'البحر الأحمر',matrouh:'مطروح',faiyum:'الفيوم',benisuef:'بني سويف',minya:'المنيا',assiut:'أسيوط',sohag:'سوهاج',qena:'قنا',luxor:'الأقصر',aswan:'أسوان',newvalley:'الوادي الجديد'};
 const state={user:null,manager:null,tab:'jobs',rows:[],loading:false,filterPending:false,filterNoProof:false};
 const $=id=>document.getElementById(id);
@@ -820,7 +832,7 @@ function waLink(num, msg, name){
   return n?'https://wa.me/'+n+'?text='+encodeURIComponent(finalMsg):'#'
 }
 const NAV_MAIN=['pharmacists','jobs','pharmacies','notifications'];
-const NAV_SHORT={pharmacists:'الصيادلة',jobs:'الوظائف',pharmacies:'الصيدليات',notifications:'الإشعارات',sales:'للبيع',helpers:'المساعدين',moderation:'الحظر',otps:'الأكواد',resets:'الطلبات',contacts:'الأرقام'};
+const NAV_SHORT={tips:'المعلومة',pharmacists:'الصيادلة',jobs:'الوظائف',pharmacies:'الصيدليات',notifications:'الإشعارات',sales:'للبيع',helpers:'المساعدين',moderation:'الحظر',otps:'الأكواد',resets:'الطلبات',contacts:'الأرقام'};
 function tabBadge(k){const n=(state.badges||{})[k]||0;return n?'<i class="tab-badge">'+n+'</i>':''}
 function visibleTabs(){return tabs.filter(t=>canTab(t[0]))}
 function renderTabs(){const html=visibleTabs().map(t=>'<button class="tab '+(state.tab===t[0]?'active':'')+'" onclick="setTab(\''+t[0]+'\')"><span>'+t[1]+'</span><b>'+t[2]+'</b>'+tabBadge(t[0])+'</button>').join('');$('sideTabs').innerHTML=html;
@@ -902,6 +914,55 @@ setInterval(()=>checkPwRequests(false),30000);
 clearPwNotifications();
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkPwRequests(false)});
 
+
+/* ===================== 💡 Daily tips (v75) ===================== */
+const TIP_CATS={interaction:'💊 تداخل دوائي',counselling:'🗣️ نصيحة للمريض',dosing:'🔢 جرعات',storage:'❄️ تخزين',safety:'⚠️ تحذير أمان',news:'📰 جديد'};
+function cairoDate(off){const d=new Date(new Date().toLocaleString('en-US',{timeZone:'Africa/Cairo'}));d.setDate(d.getDate()+(off||0));return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+async function loadTipsAdmin(){
+  let base=[];try{const r=await fetch('https://careerk.net/tips.json?x='+Date.now(),{cache:'no-store'});base=r.ok?await r.json():[]}catch(e){}
+  const ov=await sb.from('tip_overrides').select('*');
+  state.tipsBase=base;state.tipOv={};
+  if(ov.error){state.tipsErr=isMissingTable(ov.error)||/tip_overrides|schema cache/.test(ov.error.message||'')?'missing':friendly(ov.error)}else{state.tipsErr=null;(ov.data||[]).forEach(o=>state.tipOv[o.tip_date]=o)}
+  state.rows=base;renderRows();
+}
+function mergedTip(t){const o=(state.tipOv||{})[t.date];if(!o)return Object.assign({},t,{edited:false,hidden:false});const m=Object.assign({},t);['title','body','category','source','url'].forEach(k=>{if(o[k])m[k]=o[k]});m.edited=true;m.hidden=!!o.is_hidden;return m}
+function renderTipsAdmin(){
+  const today=cairoDate(0),from=cairoDate(-3);
+  const list=(state.tipsBase||[]).filter(t=>t.date>=from).map(mergedTip);
+  const last=(state.tipsBase||[]).slice(-1)[0];
+  const head=`<div class="helper-note"><b>💡 معلومة اليوم:</b> بتظهر في الرئيسية وتتغير لوحدها كل يوم الساعة 12 بالليل. معلومات جديدة بتتضاف أوتوماتيك كل أسبوع من مصادر رسمية (هيئة الدواء، FDA، NHS، Medscape). تقدر هنا تعدّل أي معلومة أو تخفيها قبل ما تنزل.${last?`<br>📅 المعلومات جاهزة لحد <b>${esc(last.date)}</b>.`:''}${state.tipsErr==='missing'?'<br>⚠️ التعديل والإخفاء محتاجين تشغيل SQL v75.':''}</div>`;
+  const rows=list.map(t=>`<div class="row ${t.hidden?'row-hidden-tip':''}"><div class="row-main"><div>
+      <div class="meta" style="margin-bottom:6px"><span class="chip ${t.date===today?'green':'blue'}">${t.date===today?'🟢 النهارده':esc(t.date)}</span><span class="chip">${TIP_CATS[t.category]||esc(t.category||'')}</span>${t.edited?'<span class="chip perm-chip">✏️ متعدّلة</span>':''}${t.hidden?'<span class="chip red">🙈 مخفية</span>':''}</div>
+      <h4 class="title">${esc(t.title)}</h4><p class="desc" style="white-space:pre-line">${esc(t.body)}</p>
+      <div class="meta"><a class="chip" href="${esc(t.url||'#')}" target="_blank" rel="noopener">📚 ${esc(t.source||'المصدر')}</a></div></div>
+    <div class="actions"><button class="btn small primary" onclick="editTip('${t.date}')">✏️ تعديل</button><button class="btn small ${t.hidden?'ok':'danger'}" onclick="toggleTipHidden(event,'${t.date}',${!t.hidden})">${t.hidden?'👁 إظهار':'🙈 إخفاء'}</button>${t.edited?`<button class="btn small" onclick="resetTip(event,'${t.date}')">↩️ رجّع الأصلية</button>`:''}</div></div></div>`).join('');
+  $('rows').innerHTML=head+(rows||'<div class="empty">مفيش معلومات جاية — المهمة الأسبوعية هتضيف قريب</div>');
+}
+function editTip(date){
+  const t=mergedTip((state.tipsBase||[]).find(x=>x.date===date)||{date});
+  const m=$('tipModal');m.dataset.date=date;
+  m.querySelector('.tip-when').textContent=date;
+  $('tipTitle').value=t.title||'';$('tipBody').value=t.body||'';$('tipSource').value=t.source||'';$('tipUrl').value=t.url||'';
+  $('tipCat').innerHTML=Object.entries(TIP_CATS).map(([k,v])=>`<option value="${k}" ${k===t.category?'selected':''}>${v}</option>`).join('');
+  m.classList.add('show');
+}
+function closeTipModal(){$('tipModal').classList.remove('show')}
+async function upsertTip(date,patch){const r=await sb.from('tip_overrides').upsert(Object.assign({tip_date:date,updated_at:new Date().toISOString()},patch),{onConflict:'tip_date'}).select('tip_date').maybeSingle();if(r.error)throw r.error}
+async function saveTip(e){
+  const m=$('tipModal'),date=m.dataset.date,btn=e.currentTarget,old=btn.textContent;
+  const patch={title:$('tipTitle').value.trim(),body:$('tipBody').value.trim(),category:$('tipCat').value,source:$('tipSource').value.trim(),url:$('tipUrl').value.trim()};
+  if(!patch.title||!patch.body){toast('العنوان والمعلومة مطلوبين','error');return}
+  btn.disabled=true;btn.textContent='جارِ...';
+  try{const prev=(state.tipOv||{})[date];await upsertTip(date,Object.assign(patch,{is_hidden:prev?.is_hidden||false}));toast('✅ اتحفظت');closeTipModal();await loadTipsAdmin()}
+  catch(err){toast(friendly(err)+(/tip_overrides|schema cache/.test(String(err&&err.message))?' - شغّل SQL v75':''),'error')}
+  finally{btn.disabled=false;btn.textContent=old}
+}
+async function toggleTipHidden(e,date,hide){const btn=e.currentTarget,old=btn.textContent;btn.disabled=true;btn.textContent='جارِ...';
+  try{await upsertTip(date,{is_hidden:hide});toast(hide?'🙈 اتخفت — مش هتظهر اليوم ده':'👁 رجعت تظهر');await loadTipsAdmin()}
+  catch(err){toast(friendly(err)+(/tip_overrides|schema cache/.test(String(err&&err.message))?' - شغّل SQL v75':''),'error')}finally{btn.disabled=false;btn.textContent=old}}
+async function resetTip(e,date){if(!confirm('ترجّع المعلومة الأصلية وتلغي تعديلاتك؟'))return;const btn=e.currentTarget;btn.disabled=true;
+  try{const r=await sb.from('tip_overrides').delete().eq('tip_date',date);if(r.error)throw r.error;toast('↩️ رجعت الأصلية');await loadTipsAdmin()}catch(err){toast(friendly(err),'error')}finally{btn.disabled=false}}
+
 /* ===================== HELPER PERMISSIONS (v74) ===================== */
 const PERMS=[
   ['verify','🪪','مراجعة التوثيق','قبول ورفض طلبات التوثيق وتذكير الأعضاء'],
@@ -913,9 +974,10 @@ const PERMS=[
   ['notify','🔔','الإشعارات','يبعت إشعارات للأعضاء'],
   ['moderation','🛡️','الحظر','حظر وفك حظر الأرقام وتغيير باسورد عضو'],
   ['delete_accounts','🗑️','حذف الحسابات','حذف الحسابات نهائيًا (وحذف + حظر)'],
-  ['contacts','📞','أرقام التواصل','تعديل أرقام التواصل اللي على الموقع']
+  ['contacts','📞','أرقام التواصل','تعديل أرقام التواصل اللي على الموقع'],
+  ['tips','💡','معلومة اليوم','تعديل أو إخفاء معلومة اليوم اللي على الرئيسية']
 ];
-const TAB_PERMS={jobs:['jobs'],pharmacies:['verify','members'],pharmacists:['verify','members','delete_accounts'],sales:['sales'],helpers:[],moderation:['moderation'],otps:['otp'],resets:['resets'],notifications:['notify'],contacts:['contacts']};
+const TAB_PERMS={jobs:['jobs'],pharmacies:['verify','members'],pharmacists:['verify','members','delete_accounts'],sales:['sales'],helpers:[],moderation:['moderation'],otps:['otp'],resets:['resets'],notifications:['notify'],contacts:['contacts'],tips:['tips']};
 function can(p){return !state.isHelper||(state.perms||[]).includes(p)}
 function canTab(t){if(!state.isHelper)return true;const need=TAB_PERMS[t];return !!need&&need.some(can)}
 const FN_PERMS={verifyPharmacist:'verify',rejectVerification:'verify',askMoreProof:'verify',sendRejectFromModal:'verify',remindUserToUploadProof:'verify',verifyPharmacy:'verify',
@@ -923,7 +985,7 @@ const FN_PERMS={verifyPharmacist:'verify',rejectVerification:'verify',askMorePro
   deleteAccount:'delete_accounts',deleteAccountAndBlock:'delete_accounts',toggleHelper:'__admin',editHelperNote:'__admin',notifyHelpers:'__admin',openHelperPerms:'__admin',
   issueOtp:'otp',issueOtpByPhone:'otp',approveReset:'resets',rejectReset:'resets',sendNotifByPhone:'notify',sendBroadcast:'notify',
   adminBlockPhone:'moderation',adminUnblockPhone:'moderation',adminUnblockExisting:'moderation',adminResetPassword:'moderation',changeMyAdminPassword:'__admin',
-  addContactNumber:'contacts',toggleContactActive:'contacts',editContactNumber:'contacts',jumpToPendingVerifications:'verify',jumpToNoProof:'verify'};
+  addContactNumber:'contacts',editTip:'tips',toggleTipHidden:'tips',resetTip:'tips',toggleContactActive:'contacts',editContactNumber:'contacts',jumpToPendingVerifications:'verify',jumpToNoProof:'verify'};
 const DEL_PERMS={jobs:'jobs',pharmacy_sales:'sales',notifications:'notify',contact_numbers:'contacts',otp_codes:'otp',blocked_phones:'moderation',pharmacists:'delete_accounts',pharmacies:'delete_accounts'};
 function permForOnclick(oc){
   const m=/^\s*(?:event\.stopPropagation\(\);\s*)?([a-zA-Z]+)\(/.exec(oc||'');if(!m)return null;
@@ -991,11 +1053,12 @@ async function loadRows(){state.loading=true;$('rows').innerHTML='<div class="lo
   if(state.tab==='otps')r=await sb.from('otp_codes').select('*').order('created_at',{ascending:false}).limit(100);
   if(state.tab==='resets')r=await sb.from('password_reset_requests').select('*').order('created_at',{ascending:false}).limit(200);
   if(state.tab==='notifications')r=await sb.from('notifications').select('*').order('created_at',{ascending:false}).limit(200);
+  if(state.tab==='tips'){await loadTipsAdmin();return}
   if(state.tab==='contacts')r=await sb.from('contact_numbers').select('*').order('display_order',{ascending:true}).order('created_at',{ascending:true}).limit(50);
   if(r?.error){if(isMissingTable(r.error)){state.rows=[];renderRows();return}throw r.error}state.rows=r?.data||[];renderRows()}catch(err){$('rows').innerHTML='<div class="empty">'+esc(friendly(err))+'</div>'}finally{state.loading=false}}
 function filteredRows(){let rows=state.rows;if(state.tab==='pharmacists'){if(state.filterPending){rows=rows.filter(x=>x.verification_status==='pending'&&x.is_verified!==true)}else if(state.filterNoProof){rows=rows.filter(x=>!x.verification_card_url&&x.is_verified!==true)}}const q=$('search').value.trim().toLowerCase();if(!q)return rows;return rows.filter(x=>JSON.stringify(x).toLowerCase().includes(q))}
 function renderRows(){renderRowsCore();pruneForHelper($('rows'));if(state.tab==='helpers')loadHelperActivity()}
-function renderRowsCore(){const rows=filteredRows();const pFilterBtn=$('pendingFilterBtn');const npFilterBtn=$('noProofFilterBtn');if(pFilterBtn){pFilterBtn.classList.toggle('hide',state.tab!=='pharmacists');pFilterBtn.classList.toggle('is-active',state.filterPending===true)}if(npFilterBtn){npFilterBtn.classList.toggle('hide',state.tab!=='pharmacists');npFilterBtn.classList.toggle('is-active',state.filterNoProof===true)}if(state.tab==='helpers'){renderHelpers(rows);return}if(state.tab==='moderation'){renderModeration(rows);return}if(state.tab==='otps'){renderOtps(rows);return}if(state.tab==='resets'){renderResets(rows);return}if(state.tab==='notifications'){renderNotifications(rows);return}if(state.tab==='contacts'){renderContacts(rows);return}if(!rows.length){let msg='لا توجد بيانات';if(state.filterPending)msg='مفيش طلبات توثيق معلقة حاليًا 🎉';else if(state.filterNoProof)msg='مفيش حسابات قديمة بدون إثبات 🎉';$('rows').innerHTML='<div class="empty">'+msg+'</div>';return}let html='';if(state.tab==='jobs')html=rows.map(jobRow).join('');if(state.tab==='pharmacies')html=rows.map(pharmacyRow).join('');if(state.tab==='pharmacists')html=rows.map(pharmacistRow).join('');if(state.tab==='sales')html=rows.map(saleRow).join('');$('rows').innerHTML=html}
+function renderRowsCore(){const rows=filteredRows();const pFilterBtn=$('pendingFilterBtn');const npFilterBtn=$('noProofFilterBtn');if(pFilterBtn){pFilterBtn.classList.toggle('hide',state.tab!=='pharmacists');pFilterBtn.classList.toggle('is-active',state.filterPending===true)}if(npFilterBtn){npFilterBtn.classList.toggle('hide',state.tab!=='pharmacists');npFilterBtn.classList.toggle('is-active',state.filterNoProof===true)}if(state.tab==='helpers'){renderHelpers(rows);return}if(state.tab==='moderation'){renderModeration(rows);return}if(state.tab==='otps'){renderOtps(rows);return}if(state.tab==='resets'){renderResets(rows);return}if(state.tab==='notifications'){renderNotifications(rows);return}if(state.tab==='contacts'){renderContacts(rows);return}if(state.tab==='tips'){renderTipsAdmin();return}if(!rows.length){let msg='لا توجد بيانات';if(state.filterPending)msg='مفيش طلبات توثيق معلقة حاليًا 🎉';else if(state.filterNoProof)msg='مفيش حسابات قديمة بدون إثبات 🎉';$('rows').innerHTML='<div class="empty">'+msg+'</div>';return}let html='';if(state.tab==='jobs')html=rows.map(jobRow).join('');if(state.tab==='pharmacies')html=rows.map(pharmacyRow).join('');if(state.tab==='pharmacists')html=rows.map(pharmacistRow).join('');if(state.tab==='sales')html=rows.map(saleRow).join('');$('rows').innerHTML=html}
 function jobRow(x){return '<div class="row"><div class="row-main"><div><h4 class="title">'+esc(x.title)+'</h4><div class="meta"><span class="chip blue">'+esc(x.pharmacies?.name||'صيدلية')+'</span><span class="chip">'+g(x.governorate)+(x.city?' · '+esc(x.city):'')+'</span><span class="chip '+(x.is_active?'green':'red')+'">'+(x.is_active?'نشط':'متوقف')+'</span><span class="chip">👁 '+(x.view_count||0)+'</span><span class="chip">'+ago(x.created_at)+'</span></div></div><div class="actions"><button class="btn small '+(x.is_active?'danger':'ok')+'" onclick="toggleJob(event,\''+x.id+'\','+(!x.is_active)+')">'+(x.is_active?'إيقاف':'تشغيل')+'</button><button class="btn small" onclick="openItem(\'job\',\''+x.id+'\')">عرض</button><button class="btn small danger" onclick="deleteRow(event,\'jobs\',\''+x.id+'\')">حذف</button></div></div>'+(x.description?'<p class="desc">'+esc(x.description)+'</p>':'')+'</div>'}
 function pharmacyDetailPanel(x){
   return `<details class="detail-panel"><summary>👁 كل تفاصيل الصيدلية</summary>
